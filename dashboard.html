@@ -2,6 +2,7 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/png" href="icons/tuf.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TUF Agency — Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -28,15 +29,15 @@
   ::-webkit-scrollbar-thumb { background: #2a3050; border-radius: 4px; }
 
   .sidebar { background: var(--surface); border-right: 1px solid var(--border); width: 240px; min-height: 100vh; position: sticky; top: 0; display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; }
-  .nav-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); transition: all 0.15s; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; background: transparent; border: none; }
+  .nav-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); transition: all 0.15s; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; background: transparent; border: none; font-style: normal; }
   .nav-btn:hover { background: #12161f; color: var(--text); }
   .nav-btn.active { background: var(--red-dim); color: var(--red); border-left: 3px solid var(--red); padding-left: 11px; }
 
   .card-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; transition: all 0.2s; }
   .card-stat:hover { border-color: #2a3050; background: #10141e; }
 
-  .text-label { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
-  .text-value { font-size: 22px; font-weight: 800; color: var(--text); }
+  .text-label { color: var(--muted); font-size: 13px; font-weight: 600; }
+  .text-value { font-size: 26px; font-weight: 800; color: var(--text); }
 
   .card-total { background: linear-gradient(135deg, rgba(229,62,62,0.08), rgba(229,62,62,0.03)); border: 1px solid rgba(229,62,62,0.25) !important; }
   .card-total .text-value { color: var(--red); }
@@ -63,8 +64,8 @@
   .fade-up { animation: fadeUp 0.3s ease both; }
 
   /* Profile */
-  .perfil-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-  .avatar-grande { background: #12161f; border: 3px solid var(--red); border-radius: 50%; width: 96px; height: 96px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; color: white; }
+  .perfil-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; }
+  .avatar-grande { background: #1e293b; border: 3px solid var(--red); border-radius: 50%; width: 96px; height: 96px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 800; color: white; }
 </style>
 </head>
 <body class="flex min-h-screen">
@@ -82,7 +83,7 @@
     </button>
   </nav>
   <div class="pt-4 border-t border-[#1a1e2e]">
-    <p class="text-[10px] text-gray-700 text-center mb-3 uppercase tracking-widest font-bold italic">© TUF Agency</p>
+    <p class="text-[10px] text-gray-700 text-center mb-3 uppercase tracking-widest font-bold">© TUF Agency</p>
     <button onclick="logout()" class="nav-btn">
       <i data-lucide="log-out" class="w-4 h-4"></i> Sair
     </button>
@@ -94,11 +95,11 @@
 
   <!-- Header -->
   <header class="flex justify-between items-center mb-8">
-    <h2 id="titulo-pagina" class="text-2xl font-black uppercase tracking-tight">Overview</h2>
+    <h2 id="titulo-pagina" class="text-2xl font-bold uppercase tracking-tight">Overview</h2>
     <div class="relative">
-      <button onclick="toggleDropdown()" class="flex items-center gap-3 bg-transparent px-4 py-2 rounded-full border border-[#1a1e2e] hover:border-[#e53e3e] transition">
-        <span id="top-user-name" class="text-sm font-bold text-gray-300 uppercase italic">...</span>
-        <div id="avatar-inicial" class="h-9 w-9 bg-[#12161f] rounded-lg flex items-center justify-center text-sm font-black border border-[#e53e3e] text-white">?</div>
+      <button onclick="toggleDropdown()" class="flex items-center gap-3 bg-transparent p-1 px-4 rounded-full border border-[#1a1e2e] hover:border-[#e53e3e] transition">
+        <span id="top-user-name" class="text-sm font-semibold text-gray-300 uppercase">...</span>
+        <div id="avatar-inicial" class="h-9 w-9 bg-slate-700 rounded-full flex items-center justify-center text-sm font-bold border border-[#e53e3e] text-white">?</div>
       </button>
       <div id="dropdown" class="hidden absolute right-0 mt-2 w-44 rounded-xl z-50 overflow-hidden shadow-2xl border">
         <button onclick="mudarTab('perfil')" class="flex items-center w-full p-3 text-sm text-gray-300 hover:bg-[#12161f]">
@@ -125,7 +126,7 @@
   <!-- OVERVIEW -->
   <div id="secao-overview" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 fade-up">
     <div class="card-stat">
-      <img src="icons/rgst.svg" class="h-11 flex-shrink-0">
+      <img src="icons/Cadastro2-dImE--7A.svg" class="h-11 flex-shrink-0">
       <div><p class="text-label">Registro</p><h3 id="registros" class="text-value">0</h3></div>
     </div>
     <div class="card-stat">
@@ -148,39 +149,40 @@
       <img src="icons/cpa.svg" class="h-11 flex-shrink-0">
       <div><p class="text-label">CPA</p><h3 id="cpa" class="text-value">R$ 0,00</h3></div>
     </div>
-    <div class="card-stat card-total sm:col-span-2 lg:col-span-3">
+    <div class="card-stat">
       <img src="icons/cprev.svg" class="h-11 flex-shrink-0">
       <div><p class="text-label">Total (REV + CPA)</p><h3 id="total" class="text-value">R$ 0,00</h3></div>
     </div>
   </div>
 
   <!-- PERFIL -->
-  <div id="secao-perfil" class="hidden max-w-2xl fade-up">
+  <div id="secao-perfil" class="hidden max-w-3xl mx-auto fade-up">
     <div class="perfil-card">
-      <div class="flex flex-col items-center mb-8">
+      <div class="flex flex-col items-center mb-10">
         <div class="avatar-grande mb-4" id="avatar-perfil-grande">?</div>
-        <h2 class="text-2xl font-black italic uppercase tracking-tight" id="perfil-nome-grande">...</h2>
+        <h2 class="text-2xl font-bold uppercase tracking-tight" id="perfil-nome-grande">...</h2>
+        <span class="text-xs font-semibold text-green-400 mt-1 uppercase tracking-widest">Afiliado</span>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="card-stat" style="border-color:#1a1e2e">
           <i data-lucide="user" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
-          <div><p class="text-label">Nome</p><p id="perfil-nome-info" class="font-bold text-white uppercase italic">---</p></div>
+          <div><p class="text-label">Nome</p><p id="perfil-nome-info" class="font-bold text-white uppercase">---</p></div>
         </div>
         <div class="card-stat" style="border-color:#1a1e2e">
           <i data-lucide="mail" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
-          <div><p class="text-label">E-mail</p><p id="perfil-email" class="font-bold text-gray-300 lowercase italic text-sm">---</p></div>
+          <div><p class="text-label">E-mail</p><p id="perfil-email" class="font-bold text-gray-300 text-sm">---</p></div>
         </div>
         <div class="card-stat" style="border-color:#1a1e2e">
           <i data-lucide="credit-card" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
-          <div><p class="text-label">Chave Pix</p><p id="perfil-pix" class="font-bold text-white uppercase italic">---</p></div>
+          <div><p class="text-label">Chave Pix</p><p id="perfil-pix" class="font-bold text-white">---</p></div>
         </div>
         <div class="card-stat" style="border-color:#1a1e2e">
           <i data-lucide="calendar-check" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
-          <div><p class="text-label">Recorrência</p><p id="perfil-pag" class="font-bold text-white uppercase italic">---</p></div>
+          <div><p class="text-label">Recorrência de Pagamento</p><p id="perfil-pag" class="font-bold text-white">---</p></div>
         </div>
-        <div class="card-stat sm:col-span-2" style="border-color:#1a1e2e">
+        <div class="card-stat md:col-span-2" style="border-color:#1a1e2e">
           <i data-lucide="zap" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
-          <div><p class="text-label">Meu Acordo</p><p id="perfil-acordo" class="font-bold text-white italic">---</p></div>
+          <div><p class="text-label">Meu Acordo</p><p id="perfil-acordo" class="font-bold text-white">---</p></div>
         </div>
       </div>
     </div>
