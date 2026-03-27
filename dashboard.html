@@ -63,8 +63,8 @@
   .fade-up { animation: fadeUp 0.3s ease both; }
 
   /* Profile */
-  .perfil-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-  .avatar-grande { background: #12161f; border: 3px solid var(--red); border-radius: 50%; width: 96px; height: 96px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; color: white; }
+  <button onclick="toggleDropdown()" class="flex items-center gap-3 bg-transparent p-1 px-4 rounded-full border border-slate-700 hover:border-blue-500 transition">
+                    <span id="top-user-name" class="text-sm font-medium text-slate-300 uppercase">...</span>
 </style>
 </head>
 <body class="flex min-h-screen">
@@ -97,7 +97,6 @@
     <h2 id="titulo-pagina" class="text-2xl font-black uppercase tracking-tight">Overview</h2>
     <div class="relative">
       <button onclick="toggleDropdown()" class="flex items-center gap-3 bg-transparent px-4 py-2 rounded-full border border-[#1a1e2e] hover:border-[#e53e3e] transition">
-        <span id="top-user-name" class="text-sm font-bold text-gray-300 uppercase italic">...</span>
         <div id="avatar-inicial" class="h-9 w-9 bg-[#12161f] rounded-lg flex items-center justify-center text-sm font-black border border-[#e53e3e] text-white">?</div>
       </button>
       <div id="dropdown" class="hidden absolute right-0 mt-2 w-44 rounded-xl z-50 overflow-hidden shadow-2xl border">
@@ -125,7 +124,7 @@
   <!-- OVERVIEW -->
   <div id="secao-overview" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 fade-up">
     <div class="card-stat">
-      <img src="icons/rgst.svg" class="h-11 flex-shrink-0">
+      <img src="icons/Cadastro2-dImE--7A.svg" class="h-11 flex-shrink-0">
       <div><p class="text-label">Registro</p><h3 id="registros" class="text-value">0</h3></div>
     </div>
     <div class="card-stat">
@@ -148,7 +147,7 @@
       <img src="icons/cpa.svg" class="h-11 flex-shrink-0">
       <div><p class="text-label">CPA</p><h3 id="cpa" class="text-value">R$ 0,00</h3></div>
     </div>
-    <div class="card-stat card-total sm:col-span-2 lg:col-span-3">
+    <div class="card-stat">
       <img src="icons/cprev.svg" class="h-11 flex-shrink-0">
       <div><p class="text-label">Total (REV + CPA)</p><h3 id="total" class="text-value">R$ 0,00</h3></div>
     </div>
@@ -159,28 +158,28 @@
     <div class="perfil-card">
       <div class="flex flex-col items-center mb-8">
         <div class="avatar-grande mb-4" id="avatar-perfil-grande">?</div>
-        <h2 class="text-2xl font-black italic uppercase tracking-tight" id="perfil-nome-grande">...</h2>
+        <h2 class="text-2xl font-black uppercase tracking-tight" id="perfil-nome-grande">...</h2>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="card-stat" style="border-color:#1a1e2e">
           <i data-lucide="user" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
-          <div><p class="text-label">Nome</p><p id="perfil-nome-info" class="font-bold text-white uppercase italic">---</p></div>
+          <div><p class="text-label">Nome</p><p id="perfil-nome-info" class="font-bold text-white uppercase">---</p></div>
         </div>
         <div class="card-stat" style="border-color:#1a1e2e">
           <i data-lucide="mail" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
-          <div><p class="text-label">E-mail</p><p id="perfil-email" class="font-bold text-gray-300 lowercase italic text-sm">---</p></div>
+          <div><p class="text-label">E-mail</p><p id="perfil-email" class="font-bold text-gray-300 lowercase text-sm">---</p></div>
         </div>
         <div class="card-stat" style="border-color:#1a1e2e">
           <i data-lucide="credit-card" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
-          <div><p class="text-label">Chave Pix</p><p id="perfil-pix" class="font-bold text-white uppercase italic">---</p></div>
+          <div><p class="text-label">Chave Pix</p><p id="perfil-pix" class="font-bold text-white uppercase">---</p></div>
         </div>
         <div class="card-stat" style="border-color:#1a1e2e">
           <i data-lucide="calendar-check" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
-          <div><p class="text-label">Recorrência</p><p id="perfil-pag" class="font-bold text-white uppercase italic">---</p></div>
+          <div><p class="text-label">Recorrência</p><p id="perfil-pag" class="font-bold text-white uppercase">---</p></div>
         </div>
         <div class="card-stat sm:col-span-2" style="border-color:#1a1e2e">
           <i data-lucide="zap" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
-          <div><p class="text-label">Meu Acordo</p><p id="perfil-acordo" class="font-bold text-white italic">---</p></div>
+          <div><p class="text-label">Meu Acordo</p><p id="perfil-acordo" class="font-bold text-white">---</p></div>
         </div>
       </div>
     </div>
