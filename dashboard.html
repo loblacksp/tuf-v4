@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TUF Agency - Painel do Afiliado</title>
+    <title>TUF Agency - Sistema de Afiliados</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
@@ -17,8 +17,7 @@
         .text-label { color: #94a3b8; font-size: 13px; font-weight: 600; }
         .text-value { font-size: 26px; font-weight: 800; color: #ffffff; }
         .highlight-blue { border: 1px solid #3b82f6 !important; background: rgba(59, 130, 246, 0.05); }
-        .highlight-green { border: 1px solid #a3e635 !important; background: rgba(163, 230, 53, 0.05); }
-        #modal-filtro { background-color: rgba(15, 23, 42, 0.95); backdrop-blur: 8px; }
+        #modal-filtro { background-color: rgba(15, 23, 42, 0.95); backdrop-blur: 4px; }
         .modal-content { background-color: #1a2235; border: 1px solid #334155; width: 450px; }
         .input-data { background-color: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 8px; width: 100%; color: white; outline: none; }
         .input-data:focus { border-color: #a3e635; }
@@ -28,27 +27,28 @@
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        .footer-text { color: #475569; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; }
     </style>
 </head>
 <body class="flex flex-col md:flex-row min-h-screen">
 
     <aside class="w-64 sidebar hidden md:flex flex-col p-6">
-        <div class="mb-10 block">
-            <img src="icons/tuf.png" class="h-12 w-fit">
-        </div>
+        <a href="dashboard.html" class="mb-10 block hover:opacity-80 transition">
+            <img src="icones/tuf.png" class="h-12 w-fit">
+        </a>
         
         <nav class="space-y-4 flex-1">
-            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-2">Navegação</p>
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-2">Menu Principal</p>
             <button onclick="mudarTab('overview')" id="btn-overview" class="flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold">
                 <i data-lucide="layout-dashboard" class="mr-3 w-5 h-5"></i> Overview
             </button>
             <button onclick="mudarTab('perfil')" id="btn-perfil" class="flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition">
-                <i data-lucide="user" class="mr-3 w-5 h-5"></i> Perfil
+                <i data-lucide="user" class="mr-3 w-5 h-5"></i> Meu Perfil
             </button>
         </nav>
         
-        <div class="mt-auto pt-6 border-t border-slate-700 text-center">
-            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-4">© TUF AGENCY v4</p>
+        <div class="mt-auto pt-6 border-t border-slate-700">
+            <p class="footer-text mb-4 text-center italic">© TUF Agency - Marketing SPRBT desde 2023</p>
             <button onclick="logout()" class="flex items-center text-slate-500 hover:text-red-400 p-3 transition w-full">
                 <i data-lucide="log-out" class="mr-3 w-5 h-5"></i> Sair
             </button>
@@ -59,42 +59,55 @@
         <header class="flex justify-between items-center mb-10">
             <h2 id="titulo-pagina" class="text-3xl font-black italic uppercase tracking-tighter">Overview</h2>
             
-            <div class="flex items-center gap-4">
-                <span id="top-user-name" class="hidden md:block text-sm font-bold text-slate-300 uppercase italic">...</span>
-                <div id="avatar-inicial" class="h-10 w-10 bg-slate-800 rounded-lg flex items-center justify-center text-sm font-black border border-blue-500 text-white uppercase italic">?</div>
+            <div class="relative">
+                <button onclick="toggleDropdown()" class="flex items-center gap-3 bg-transparent p-1 px-4 rounded-full border border-slate-700 hover:border-blue-500 transition">
+                    <span id="top-user-name" class="text-sm font-bold text-slate-300 uppercase italic">...</span>
+                    <div id="avatar-inicial" class="h-10 w-10 bg-slate-800 rounded-lg flex items-center justify-center text-sm font-black border border-blue-500 text-white uppercase italic">?</div>
+                </button>
+                <div id="dropdown" class="hidden absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl z-50 overflow-hidden shadow-2xl">
+                    <button onclick="mudarTab('perfil')" class="flex items-center w-full p-4 text-sm text-slate-300 hover:bg-slate-700">
+                        <i data-lucide="user-circle" class="mr-3 w-4 h-4 text-lime-400"></i> Meu Perfil
+                    </button>
+                    <button onclick="logout()" class="flex items-center w-full p-4 text-sm text-red-400 hover:bg-slate-700 border-t border-slate-700">
+                        <i data-lucide="log-out" class="mr-3 w-4 h-4"></i> Sair
+                    </button>
+                </div>
             </div>
         </header>
 
-        <div id="filtros-topo" class="mb-8 flex flex-wrap justify-between items-center gap-4">
+        <div id="filtros-topo" class="mb-8 flex justify-between items-center">
             <button onclick="abrirModalFiltro()" class="flex items-center gap-2 px-4 py-2 bg-transparent border border-slate-700 rounded-md text-slate-400 hover:border-lime-400 transition">
                 <i data-lucide="calendar" class="w-4 h-4 text-lime-400"></i>
-                <span id="periodo-exibicao" class="text-xs font-bold uppercase tracking-tighter">Carregando período...</span>
+                <span id="periodo-exibicao" class="text-xs font-medium uppercase tracking-tighter">Carregando...</span>
             </button>
-            <div class="bg-blue-500/10 px-3 py-1 rounded border border-blue-500/20 text-[10px] font-bold text-blue-400 uppercase italic">
-                Status: Conta Ativa
+            <div class="bg-slate-800/50 px-3 py-1 rounded border border-slate-700 text-[10px] font-bold text-slate-500 uppercase italic">
+                Um oferecimento SPRBT
             </div>
         </div>
 
         <div id="secao-overview" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="card-stat"><i data-lucide="users" class="w-10 h-10 text-slate-500"></i><div><p class="text-label">Registros</p><h3 id="registros" class="text-value">0</h3></div></div>
-            <div class="card-stat"><i data-lucide="zap" class="w-10 h-10 text-blue-400"></i><div><p class="text-label">FTDs Brutos</p><h3 id="ftd" class="text-value">0</h3></div></div>
-            <div class="card-stat highlight-green"><i data-lucide="shield-check" class="w-10 h-10 text-lime-400"></i><div><p class="text-label text-lime-400">QFTD (Qualificados)</p><h3 id="qftd" class="text-value">0</h3></div></div>
+            <div class="card-stat"><img src="icones/rgst.svg" class="h-12"><div><p class="text-label">Registro</p><h3 id="registros" class="text-value">0</h3></div></div>
+            <div class="card-stat"><img src="icones/FTD-BkwOULkh.svg" class="h-12"><div><p class="text-label">FTDs Brutos</p><h3 id="ftd" class="text-value">0</h3></div></div>
+            <div class="card-stat"><i data-lucide="shield-check" class="w-10 h-10 text-lime-400"></i><div><p class="text-label">QFTD (Qualificados)</p><h3 id="qftd" class="text-value">0</h3></div></div>
             
-            <div class="card-stat"><i data-lucide="trending-up" class="w-10 h-10 text-slate-500"></i><div><p class="text-label">Rec. Estimada</p><h3 id="depositos" class="text-value text-slate-300">R$ 0,00</h3></div></div>
-            <div class="card-stat highlight-blue"><i data-lucide="dollar-sign" class="w-10 h-10 text-blue-500"></i><div><p class="text-label text-blue-400">Comissão CPA</p><h3 id="cpa" class="text-value">R$ 0,00</h3></div></div>
-            <div class="card-stat bg-slate-800/20"><i data-lucide="wallet" class="w-10 h-10 text-slate-500"></i><div><p class="text-label">Total a Receber</p><h3 id="total" class="text-value text-slate-300">R$ 0,00</h3></div></div>
+            <div class="card-stat"><img src="icones/deposito-BqL6OVL2.svg" class="h-12"><div><p class="text-label">Receita Total</p><h3 id="depositos" class="text-value">R$ 0,00</h3></div></div>
+            <div class="card-stat highlight-blue"><img src="icones/cpa.svg" class="h-12"><div><p class="text-label text-blue-400">Comissão CPA</p><h3 id="cpa" class="text-value">R$ 0,00</h3></div></div>
+            <div class="card-stat"><img src="icones/cprev.svg" class="h-12"><div><p class="text-label">Total a Receber</p><h3 id="total" class="text-value">R$ 0,00</h3></div></div>
         </div>
 
         <div id="secao-perfil" class="hidden max-w-4xl mx-auto">
             <div class="bg-[#1a2235] border border-slate-700 p-10 rounded-2xl text-center shadow-2xl">
                 <div id="avatar-perfil-grande" class="h-32 w-32 bg-slate-800 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl font-bold border-4 border-blue-500 text-white uppercase italic">?</div>
-                <h2 id="perfil-nome-grande" class="text-3xl font-black italic mb-4 uppercase tracking-tighter">---</h2>
+                <h2 class="text-3xl font-black italic mb-4 uppercase tracking-tighter"><span id="perfil-nome-grande">...</span></h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mt-8">
-                    <div class="card-stat border-slate-800"><i data-lucide="hash" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">PIX cadastrado</p><p id="perfil-pix" class="font-bold text-white uppercase italic">---</p></div></div>
-                    <div class="card-stat border-slate-800"><i data-lucide="award" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">Seu Acordo</p><p id="perfil-acordo" class="font-bold text-white italic">---</p></div></div>
+                    <div class="card-stat border-slate-800"><i data-lucide="credit-card" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">Chave PIX</p><p id="perfil-pix" class="font-bold text-white uppercase italic">---</p></div></div>
+                    <div class="card-stat border-slate-800"><i data-lucide="calendar-days" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">Pagamento</p><p id="perfil-pag" class="font-bold text-white uppercase italic">---</p></div></div>
+                    <div class="card-stat border-slate-800"><i data-lucide="zap" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">Meu Acordo</p><p id="perfil-acordo" class="font-bold text-white italic">---</p></div></div>
+                    <div class="card-stat border-slate-800"><i data-lucide="mail" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">E-mail</p><p id="perfil-email" class="font-bold text-slate-300 lowercase italic">---</p></div></div>
                 </div>
             </div>
+            <p class="mt-12 footer-text text-center italic">A TUF Agency atua como parceira oficial cuidando de toda a gestão de marketing da Superbet desde 2023.</p>
         </div>
     </main>
 
@@ -102,88 +115,79 @@
         <div class="modal-content p-8 rounded-xl relative shadow-2xl border-t-4 border-lime-400">
             <button onclick="fecharModalFiltro()" class="absolute top-4 right-4 text-slate-500 hover:text-white">✕</button>
             <h3 class="text-xl font-bold mb-1 uppercase italic">Filtrar Relatório</h3>
-            <p class="text-slate-400 text-sm mb-8 italic">Selecione as datas para atualizar os números.</p>
+            <p class="text-slate-400 text-sm mb-8 italic">Selecione o período para recalcular os ganhos.</p>
             <div class="space-y-4">
-                <div><label class="text-[10px] font-black uppercase text-slate-500">De:</label><input type="date" id="modal-ini" class="input-data"></div>
-                <div><label class="text-[10px] font-black uppercase text-slate-500">Até:</label><input type="date" id="modal-fim" class="input-data"></div>
+                <input type="date" id="modal-ini" class="input-data">
+                <input type="date" id="modal-fim" class="input-data">
             </div>
             <div class="flex gap-4 mt-8">
                 <button onclick="fecharModalFiltro()" class="flex-1 bg-slate-800 py-3 rounded-lg font-bold">Voltar</button>
-                <button onclick="aplicarFiltroLocal()" class="btn-aplicar flex-1 uppercase">Atualizar</button>
+                <button onclick="aplicarFiltroLocal()" class="btn-aplicar flex-1 uppercase">Filtrar Agora</button>
             </div>
         </div>
     </div>
 
-    <div id="toast">Relatório atualizado!</div>
+    <div id="toast">Filtros aplicados com sucesso!</div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDcwuASd8wGkR9is1uFQwRjJKbatYE_wD0",
-            authDomain: "tuf-v4.firebaseapp.com",
-            databaseURL: "https://tuf-v4-default-rtdb.firebaseio.com",
-            projectId: "tuf-v4",
-            storageBucket: "tuf-v4.firebasestorage.app",
-            messagingSenderId: "108777866240",
-            appId: "1:108777866240:web:803141d1a15373223b44e5"
-        };
+        // Configuração do seu Firebase TUF Agency
+        const firebaseConfig = { apiKey: "AIzaSyC-0AR8LPQJpdVcYp6QY8nUQJgBGr8oOy0", authDomain: "tufagency-6902e.firebaseapp.com", databaseURL: "https://tufagency-6902e-default-rtdb.firebaseio.com", projectId: "tufagency-6902e", storageBucket: "tufagency-6902e.firebasestorage.app", messagingSenderId: "34548749822", appId: "1:34548749822:web:74676530713d232a725caf" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const userKey = localStorage.getItem('usuarioLogado');
-        if(!userKey) window.location.href = 'index.html';
+        const user = localStorage.getItem('usuarioLogado');
+        if(!user) window.location.href = 'index.html';
 
-        function carregarDash() {
-            db.ref('usuarios/' + userKey).on('value', (s) => {
-                const d = s.val();
-                if(!d) return;
-
+        db.ref('usuarios/' + user).on('value', (s) => {
+            const d = s.val();
+            if(d) {
                 const inicial = d.nome ? d.nome.charAt(0).toUpperCase() : '?';
                 document.getElementById('avatar-inicial').innerText = inicial;
                 document.getElementById('avatar-perfil-grande').innerText = inicial;
-                document.getElementById('top-user-name').innerText = d.nome;
-                document.getElementById('perfil-nome-grande').innerText = d.nome;
-                document.getElementById('perfil-pix').innerText = d.pix || 'NÃO CADASTRADO';
-                document.getElementById('perfil-acordo').innerText = `CPA R$ ${d.acordoCPA || 0}`;
-
-                let reg=0, qftd=0, ftd=0, dep_total=0, cpa_total=0;
+                document.getElementById('top-user-name').innerText = d.nome || user;
+                document.getElementById('perfil-nome-grande').innerText = d.nome || user;
                 
+                document.getElementById('perfil-pix').innerText = d.pix || 'NÃO CADASTRADO';
+                document.getElementById('perfil-pag').innerText = d.pagamento || 'NÃO DEFINIDO';
+                document.getElementById('perfil-acordo').innerText = `BASE R$ ${d.base} / CPA R$ ${d.acordoCPA}`;
+                document.getElementById('perfil-email').innerText = user.replace(/_/g, '.');
+
+                let reg=0, qftd=0, ftd=0, dep_total=0, cpa=0;
                 if(d.historico) {
                     Object.values(d.historico).forEach(h => {
                         reg += parseInt(h.registros || 0);
                         qftd += parseInt(h.qftd || 0);
                         ftd += parseInt(h.ftd || 0);
-                        dep_total += (parseFloat(h.depositos_qftd || 0));
-                        cpa_total += parseFloat(h.cpa || 0);
+                        dep_total += (parseFloat(h.depositos_qftd || 0) + parseFloat(h.depositos_brutos || 0));
+                        cpa += parseFloat(h.cpa || 0);
                     });
                 }
-
                 document.getElementById('registros').innerText = reg;
                 document.getElementById('qftd').innerText = qftd;
                 document.getElementById('ftd').innerText = ftd;
                 document.getElementById('depositos').innerText = "R$ " + dep_total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                document.getElementById('cpa').innerText = "R$ " + cpa_total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                document.getElementById('total').innerText = "R$ " + cpa_total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                document.getElementById('cpa').innerText = "R$ " + cpa.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                document.getElementById('total').innerText = "R$ " + cpa.toLocaleString('pt-BR', {minimumFractionDigits: 2});
                 
-                const inicio = d.dataInicio || "Início";
-                const fim = d.dataFim || "Hoje";
-                document.getElementById('periodo-exibicao').innerText = `${inicio} - ${fim}`;
-            });
-        }
+                document.getElementById('periodo-exibicao').innerText = (d.dataInicio || "01/01/2026") + " - " + (d.dataFim || "31/01/2026");
+                document.getElementById('modal-ini').value = d.dataInicio ? d.dataInicio.split('/').reverse().join('-') : "2026-01-01";
+                document.getElementById('modal-fim').value = d.dataFim ? d.dataFim.split('/').reverse().join('-') : "2026-01-31";
+            }
+        });
 
         function aplicarFiltroLocal() {
             const di = document.getElementById('modal-ini').value.split('-').reverse().join('/');
             const df = document.getElementById('modal-fim').value.split('-').reverse().join('/');
-            
-            db.ref('usuarios/' + userKey).update({ dataInicio: di, dataFim: df }).then(() => {
+            db.ref('usuarios/' + user).update({ dataInicio: di, dataFim: df }).then(() => {
                 fecharModalFiltro();
-                const t = document.getElementById("toast");
-                t.className = "show";
+                const t = document.getElementById("toast"); t.className = "show";
                 setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
             });
         }
 
         function abrirModalFiltro() { document.getElementById('modal-filtro').classList.remove('hidden'); }
         function fecharModalFiltro() { document.getElementById('modal-filtro').classList.add('hidden'); }
+        function toggleDropdown() { document.getElementById('dropdown').classList.toggle('hidden'); }
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
         
         function mudarTab(tab) {
@@ -191,8 +195,9 @@
             document.getElementById('secao-perfil').classList.toggle('hidden', tab !== 'perfil');
             document.getElementById('filtros-topo').classList.toggle('hidden', tab !== 'overview');
             document.getElementById('titulo-pagina').innerText = tab === 'overview' ? 'Overview' : 'Meu Perfil';
+            document.getElementById('dropdown').classList.add('hidden');
             
-            // Estilo dos botões
+            // Ajuste visual dos botões da sidebar
             document.getElementById('btn-overview').className = tab === 'overview' ? 
                 'flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold' : 
                 'flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition';
@@ -201,8 +206,6 @@
                 'flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold' : 
                 'flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition';
         }
-
-        carregarDash();
         lucide.createIcons();
     </script>
 </body>
