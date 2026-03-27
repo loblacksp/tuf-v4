@@ -1,0 +1,5 @@
+# Ignorar arquivos de sistema e backups locais
+.DS_Store
+Thumbs.db
+backup.json
+config_pessoal.txt
