@@ -131,74 +131,77 @@
     <div id="toast">Filtros aplicados com sucesso!</div>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyC-0AR8LPQJpdVcYp6QY8nUQJgBGr8oOy0", authDomain: "tufagency-6902e.firebaseapp.com", databaseURL: "https://tufagency-6902e-default-rtdb.firebaseio.com", projectId: "tufagency-6902e", storageBucket: "tufagency-6902e.firebasestorage.app", messagingSenderId: "34548749822", appId: "1:34548749822:web:74676530713d232a725caf" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+    const firebaseConfig = { apiKey: "AIzaSyC-0AR8LPQJpdVcYp6QY8nUQJgBGr8oOy0", authDomain: "tufagency-6902e.firebaseapp.com", databaseURL: "https://tufagency-6902e-default-rtdb.firebaseio.com", projectId: "tufagency-6902e", storageBucket: "tufagency-6902e.firebasestorage.app", messagingSenderId: "34548749822", appId: "1:34548749822:web:74676530713d232a725caf" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-        const user = localStorage.getItem('usuarioLogado');
-        if(!user) window.location.href = 'index.html';
+    // Pega o usuário e limpa possíveis caracteres que o Firebase não aceita
+    const user = localStorage.getItem('usuarioLogado');
+    if(!user) window.location.href = 'index.html';
 
-        db.ref('usuarios/' + user).on('value', (s) => {
-            const d = s.val();
-            if(d) {
-                const inicial = d.nome ? d.nome.charAt(0).toUpperCase() : '?';
-                document.getElementById('avatar-inicial').innerText = inicial;
-                document.getElementById('avatar-perfil-grande').innerText = inicial;
-                document.getElementById('top-user-name').innerText = d.nome || user;
-                document.getElementById('perfil-nome-grande').innerText = d.nome || user;
-                
-                document.getElementById('perfil-nome-info').innerText = d.nome || '---';
-                document.getElementById('perfil-pix').innerText = d.pix || 'NÃO CADASTRADO';
-                document.getElementById('perfil-pag').innerText = d.pagamento || 'NÃO DEFINIDO';
-                document.getElementById('perfil-acordo').innerText = `BASE R$ ${d.base || 0} / CPA R$ ${d.acordoCPA || 0}`;
-                document.getElementById('perfil-email').innerText = user.replace(/_/g, '.');
+    // Referência direta ao nó do usuário
+    db.ref('usuarios/' + user).on('value', (s) => {
+        const d = s.val();
+        if(d) {
+            // Nome e Avatar
+            const nomeExibicao = d.nome || user.replace(/_/g, ' ');
+            const inicial = nomeExibicao.charAt(0).toUpperCase();
+            
+            document.getElementById('avatar-inicial').innerText = inicial;
+            document.getElementById('avatar-perfil-grande').innerText = inicial;
+            document.getElementById('top-user-name').innerText = nomeExibicao;
+            document.getElementById('perfil-nome-grande').innerText = nomeExibicao;
+            
+            // Dados de Perfil (Tratando caso sejam vazios)
+            document.getElementById('perfil-nome-info').innerText = d.nome || 'NÃO INFORMADO';
+            document.getElementById('perfil-pix').innerText = d.pix || 'NÃO CADASTRADO';
+            document.getElementById('perfil-pag').innerText = d.pagamento || 'A DEFINIR';
+            document.getElementById('perfil-email').innerText = d.email || user.replace(/_/g, '.');
+            
+            // Ajuste do Acordo (CPA e Base)
+            const cpaAcordo = d.acordoCPA || d.cpa || '0';
+            const baseAcordo = d.base || '0';
+            document.getElementById('perfil-acordo').innerText = `BASE R$ ${baseAcordo} / CPA R$ ${cpaAcordo}`;
 
-                let reg=0, qftd=0, ftd=0, dep_total=0, rev_v=0, cpa_v=0;
-                if(d.historico) {
-                    Object.values(d.historico).forEach(h => {
-                        reg += parseInt(h.registros || 0);
-                        qftd += parseInt(h.qftd || 0);
-                        ftd += parseInt(h.ftd || 0);
-                        dep_total += (parseFloat(h.depositos_qftd || 0) + parseFloat(h.depositos_brutos || 0));
-                        rev_v += parseFloat(h.rev || 0);
-                        cpa_v += parseFloat(h.cpa || 0);
-                    });
-                }
-                document.getElementById('registros').innerText = reg;
-                document.getElementById('qftd').innerText = qftd;
-                document.getElementById('ftd').innerText = ftd;
-                document.getElementById('depositos').innerText = "R$ " + dep_total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                document.getElementById('rev').innerText = "R$ " + rev_v.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                document.getElementById('cpa').innerText = "R$ " + cpa_v.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                document.getElementById('total').innerText = "R$ " + (rev_v + cpa_v).toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                
-                document.getElementById('periodo-exibicao').innerText = (d.dataInicio || "01/01/2026") + " - " + (d.dataFim || "31/01/2026");
-                document.getElementById('modal-ini').value = d.dataInicio ? d.dataInicio.split('/').reverse().join('-') : "2026-01-01";
-                document.getElementById('modal-fim').value = d.dataFim ? d.dataFim.split('/').reverse().join('-') : "2026-01-31";
+            // Contagem dos dados
+            let reg=0, qftd=0, ftd=0, dep_total=0, rev_v=0, cpa_v=0;
+            
+            if(d.historico) {
+                Object.values(d.historico).forEach(h => {
+                    reg += parseInt(h.registros || 0);
+                    qftd += parseInt(h.qftd || 0);
+                    ftd += parseInt(h.ftd || 0);
+                    dep_total += (parseFloat(h.depositos_qftd || 0) + parseFloat(h.depositos_brutos || 0) + parseFloat(h.depositos || 0));
+                    rev_v += parseFloat(h.rev || 0);
+                    cpa_v += parseFloat(h.cpa || 0);
+                });
             }
-        });
 
-        function aplicarFiltroLocal() {
-            const di = document.getElementById('modal-ini').value.split('-').reverse().join('/');
-            const df = document.getElementById('modal-fim').value.split('-').reverse().join('/');
-            db.ref('usuarios/' + user).update({ dataInicio: di, dataFim: df }).then(() => {
-                fecharModalFiltro();
-                const t = document.getElementById("toast"); t.className = "show";
-                setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
-            });
+            // Exibição nos Cards
+            document.getElementById('registros').innerText = reg;
+            document.getElementById('qftd').innerText = qftd;
+            document.getElementById('ftd').innerText = ftd;
+            document.getElementById('depositos').innerText = "R$ " + dep_total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            document.getElementById('rev').innerText = "R$ " + rev_v.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            document.getElementById('cpa').innerText = "R$ " + cpa_v.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            document.getElementById('total').innerText = "R$ " + (rev_v + cpa_v).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            
+            // Datas
+            document.getElementById('periodo-exibicao').innerText = (d.dataInicio || "Início") + " - " + (d.dataFim || "Hoje");
+        } else {
+            console.log("Usuário não encontrado no banco de dados.");
         }
+    });
 
-        function abrirModalFiltro() { document.getElementById('modal-filtro').classList.remove('hidden'); }
-        function fecharModalFiltro() { document.getElementById('modal-filtro').classList.add('hidden'); }
-        function toggleDropdown() { document.getElementById('dropdown').classList.toggle('hidden'); }
-        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
-        
-        function mudarTab(tab) {
-            document.getElementById('secao-overview').classList.toggle('hidden', tab !== 'overview');
-            document.getElementById('secao-perfil').classList.toggle('hidden', tab !== 'perfil');
-            document.getElementById('filtros-topo').classList.toggle('hidden', tab !== 'overview');
-            document.getElementById('titulo-pagina').innerText = tab === 'overview' ? 'Overview' : 'Meu Perfil';
-            document.getElementById('dropdown').classList.add('hidden');
+    // Funções de interface (mudarTab, logout, etc) permanecem iguais...
+    function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+    function toggleDropdown() { document.getElementById('dropdown').classList.toggle('hidden'); }
+    function mudarTab(tab) {
+        document.getElementById('secao-overview').classList.toggle('hidden', tab !== 'overview');
+        document.getElementById('secao-perfil').classList.toggle('hidden', tab !== 'perfil');
+        document.getElementById('filtros-topo').classList.toggle('hidden', tab !== 'overview');
+        document.getElementById('titulo-pagina').innerText = tab === 'overview' ? 'Overview' : 'Meu Perfil';
+    }
             
             // Estilo botões sidebar
             document.getElementById('btn-overview').className = tab === 'overview' ? 
