@@ -1,218 +1,366 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TUF Agency - Sistema de Afiliados</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: white; margin: 0; }
-        .sidebar { background-color: #1a2235; border-right: 1px solid #2d3748; height: 100vh; position: sticky; top: 0; }
-        .card-stat { background-color: transparent; border: 1px solid #334155; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; transition: 0.3s; }
-        .card-stat:hover { background-color: #1e293b; border-color: #4a5568; }
-        .text-label { color: #94a3b8; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; }
-        .text-value { font-size: 24px; font-weight: 800; color: #ffffff; }
-        .highlight-blue { border: 1px solid #3b82f6 !important; background: rgba(59, 130, 246, 0.05); }
-        #modal-filtro { background-color: rgba(15, 23, 42, 0.95); backdrop-blur: 4px; }
-        .modal-content { background-color: #1a2235; border: 1px solid #334155; width: 450px; }
-        .input-data { background-color: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 8px; width: 100%; color: white; outline: none; }
-        .input-data:focus { border-color: #a3e635; }
-        .btn-aplicar { background-color: #a3e635; color: #0f172a; font-weight: 700; padding: 12px; border-radius: 8px; transition: 0.3s; }
-        .btn-aplicar:hover { background-color: #bef264; }
-        #toast { visibility: hidden; min-width: 280px; background-color: #a3e635; color: #0f172a; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 200; bottom: 30px; left: 50%; transform: translateX(-50%); font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-        .footer-text { color: #475569; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TUF Agency — Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --bg: #0a0c14;
+    --surface: #0e1018;
+    --border: #1a1e2e;
+    --red: #e53e3e;
+    --red-dim: rgba(229,62,62,0.1);
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --lime: #a3e635;
+    --lime-dim: rgba(163,230,53,0.1);
+  }
+  * { box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #2a3050; border-radius: 4px; }
+
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); width: 240px; min-height: 100vh; position: sticky; top: 0; display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; }
+  .nav-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); transition: all 0.15s; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; background: transparent; border: none; }
+  .nav-btn:hover { background: #12161f; color: var(--text); }
+  .nav-btn.active { background: var(--red-dim); color: var(--red); border-left: 3px solid var(--red); padding-left: 11px; }
+
+  .card-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; transition: all 0.2s; }
+  .card-stat:hover { border-color: #2a3050; background: #10141e; }
+
+  .text-label { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+  .text-value { font-size: 22px; font-weight: 800; color: var(--text); }
+
+  .card-total { background: linear-gradient(135deg, rgba(229,62,62,0.08), rgba(229,62,62,0.03)); border: 1px solid rgba(229,62,62,0.25) !important; }
+  .card-total .text-value { color: var(--red); }
+
+  /* Modal filtro */
+  #modal-filtro { background: rgba(8,10,16,0.92); backdrop-filter: blur(8px); }
+  .modal-content { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--lime); width: 420px; border-radius: 12px; padding: 32px; }
+  .input-data { background: var(--bg); border: 1px solid var(--border); padding: 11px 14px; border-radius: 8px; width: 100%; color: white; outline: none; font-size: 13px; transition: border-color 0.15s; }
+  .input-data:focus { border-color: var(--lime); }
+  .btn-filtrar { background: var(--lime); color: #0a0c14; font-weight: 700; padding: 12px; border-radius: 8px; border: none; cursor: pointer; transition: 0.15s; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .btn-filtrar:hover { background: #bef264; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+
+  /* Dropdown */
+  #dropdown { background: var(--surface); border: 1px solid var(--border); }
+
+  /* Toast */
+  #toast { visibility: hidden; background: #1a2a1a; border: 1px solid #2d4a2d; color: #86efac; text-align: center; border-radius: 8px; padding: 12px 24px; position: fixed; z-index: 200; bottom: 28px; left: 50%; transform: translateX(-50%); font-weight: 600; font-size: 13px; }
+  #toast.show { visibility: visible; animation: fadein 0.4s, fadeout 0.4s 2.4s; }
+  @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 28px; opacity: 1; } }
+  @keyframes fadeout { from { bottom: 28px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  .fade-up { animation: fadeUp 0.3s ease both; }
+
+  /* Profile */
+  .perfil-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .avatar-grande { background: #12161f; border: 3px solid var(--red); border-radius: 50%; width: 96px; height: 96px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; color: white; }
+</style>
 </head>
-<body class="flex flex-col md:flex-row min-h-screen">
+<body class="flex min-h-screen">
 
-    <aside class="w-64 sidebar hidden md:flex flex-col p-6">
-        <div class="mb-10 block">
-            <img src="icons/tuf.png" class="h-12 w-fit">
-        </div>
-        
-        <nav class="space-y-4 flex-1">
-            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-2">Menu Principal</p>
-            <button onclick="mudarTab('overview')" id="btn-overview" class="flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold">
-                <i data-lucide="layout-dashboard" class="mr-3 w-5 h-5"></i> Overview
-            </button>
-            <button onclick="mudarTab('perfil')" id="btn-perfil" class="flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition">
-                <i data-lucide="user" class="mr-3 w-5 h-5"></i> Meu Perfil
-            </button>
-        </nav>
-        
-        <div class="mt-auto pt-6 border-t border-slate-700">
-            <p class="footer-text mb-4 text-center italic">© TUF Agency - Uma marca MODULAR desde 2019</p>
-            <button onclick="logout()" class="flex items-center text-slate-500 hover:text-red-400 p-3 transition w-full">
-                <i data-lucide="log-out" class="mr-3 w-5 h-5"></i> Sair
-            </button>
-        </div>
-    </aside>
+<!-- SIDEBAR -->
+<aside class="sidebar hidden md:flex flex-col">
+  <img src="icons/tuf.png" alt="TUF" class="h-10 w-auto mx-auto mb-8">
+  <p class="text-[10px] font-bold uppercase text-gray-600 px-2 mb-3 tracking-widest">Menu</p>
+  <nav class="space-y-1 flex-1">
+    <button onclick="mudarTab('overview')" id="btn-overview" class="nav-btn active">
+      <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
+    </button>
+    <button onclick="mudarTab('perfil')" id="btn-perfil" class="nav-btn">
+      <i data-lucide="user" class="w-4 h-4"></i> Meu Perfil
+    </button>
+  </nav>
+  <div class="pt-4 border-t border-[#1a1e2e]">
+    <p class="text-[10px] text-gray-700 text-center mb-3 uppercase tracking-widest font-bold italic">© TUF Agency</p>
+    <button onclick="logout()" class="nav-btn">
+      <i data-lucide="log-out" class="w-4 h-4"></i> Sair
+    </button>
+  </div>
+</aside>
 
-    <main class="flex-1 p-8">
-        <header class="flex justify-between items-center mb-10">
-            <h2 id="titulo-pagina" class="text-3xl font-black italic uppercase tracking-tighter text-white">Overview</h2>
-            
-            <div class="relative">
-                <button onclick="toggleDropdown()" class="flex items-center gap-3 bg-transparent p-1 px-4 rounded-full border border-slate-700 hover:border-blue-500 transition">
-                    <span id="top-user-name" class="text-sm font-bold text-slate-300 uppercase italic">...</span>
-                    <div id="avatar-inicial" class="h-10 w-10 bg-slate-800 rounded-lg flex items-center justify-center text-sm font-black border border-blue-500 text-white uppercase italic">?</div>
-                </button>
-                <div id="dropdown" class="hidden absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl z-50 overflow-hidden shadow-2xl">
-                    <button onclick="mudarTab('perfil')" class="flex items-center w-full p-4 text-sm text-slate-300 hover:bg-slate-700">
-                        <i data-lucide="user-circle" class="mr-3 w-4 h-4 text-lime-400"></i> Meu Perfil
-                    </button>
-                    <button onclick="logout()" class="flex items-center w-full p-4 text-sm text-red-400 hover:bg-slate-700 border-t border-slate-700">
-                        <i data-lucide="log-out" class="mr-3 w-4 h-4"></i> Sair
-                    </button>
-                </div>
-            </div>
-        </header>
+<!-- MAIN -->
+<main class="flex-1 p-6 md:p-8 overflow-y-auto">
 
-        <div id="filtros-topo" class="mb-8 flex justify-between items-center">
-            <button onclick="abrirModalFiltro()" class="flex items-center gap-2 px-4 py-2 bg-transparent border border-slate-700 rounded-md text-slate-400 hover:border-lime-400 transition">
-                <i data-lucide="calendar" class="w-4 h-4 text-lime-400"></i>
-                <span id="periodo-exibicao" class="text-xs font-medium uppercase tracking-tighter">Carregando...</span>
-            </button>
-            <div class="bg-slate-800/50 px-3 py-1 rounded border border-slate-700 text-[10px] font-bold text-slate-500 uppercase italic">
-                Um oferecimento MODULAR
-            </div>
-        </div>
-
-        <div id="secao-overview" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="card-stat"><img src="icons/rgst.svg" class="h-12"><div><p class="text-label uppercase">Registro</p><h3 id="registros" class="text-value">0</h3></div></div>
-            <div class="card-stat"><img src="icons/FTD-BkwOULkh.svg" class="h-12"><div><p class="text-label uppercase">FTD</p><h3 id="ftd" class="text-value">0</h3></div></div>
-            <div class="card-stat"><img src="icons/FTD-BkwOULkh.svg" class="h-12"><div><p class="text-label uppercase">QFTD</p><h3 id="qftd" class="text-value">0</h3></div></div>
-            <div class="card-stat"><img src="icons/deposito-BqL6OVL2.svg" class="h-12"><div><p class="text-label uppercase">Depósito</p><h3 id="depositos" class="text-value">R$ 0,00</h3></div></div>
-            <div class="card-stat"><img src="icons/Rev-Cd_d35Vr.svg" class="h-12"><div><p class="text-label uppercase">REV</p><h3 id="rev" class="text-value">R$ 0,00</h3></div></div>
-            <div class="card-stat"><img src="icons/cpa.svg" class="h-12"><div><p class="text-label uppercase">CPA</p><h3 id="cpa" class="text-value">R$ 0,00</h3></div></div>
-            <div class="card-stat"><img src="icons/cprev.svg" class="h-12"><div><p class="text-label uppercase">REV + CPA</p><h3 id="total" class="text-value">R$ 0,00</h3></div></div>
-        </div>
-
-        <div id="secao-perfil" class="hidden max-w-4xl mx-auto">
-            <div class="bg-[#1a2235] border border-slate-700 p-8 rounded-2xl shadow-2xl">
-                <div class="flex flex-col items-center mb-10">
-                    <div id="avatar-perfil-grande" class="h-32 w-32 bg-slate-800 rounded-full flex items-center justify-center text-4xl font-bold border-4 border-blue-500 text-white uppercase italic mb-4">?</div>
-                    <h2 class="text-3xl font-black italic uppercase tracking-tighter text-center" id="perfil-nome-grande">...</h2>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="card-stat border-slate-800"><i data-lucide="user" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">NOME</p><p id="perfil-nome-info" class="font-bold text-white uppercase italic">---</p></div></div>
-                    <div class="card-stat border-slate-800"><i data-lucide="mail" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">E-MAIL</p><p id="perfil-email" class="font-bold text-slate-300 lowercase italic">---</p></div></div>
-                    <div class="card-stat border-slate-800"><i data-lucide="credit-card" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">CHAVE PIX</p><p id="perfil-pix" class="font-bold text-white uppercase italic">---</p></div></div>
-                    <div class="card-stat border-slate-800"><i data-lucide="calendar-check" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">RECORRÊNCIA PAGAMENTO</p><p id="perfil-pag" class="font-bold text-white uppercase italic">---</p></div></div>
-                    <div class="card-stat border-slate-800 md:col-span-2"><i data-lucide="zap" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">MEU ACORDO</p><p id="perfil-acordo" class="font-bold text-white italic">---</p></div></div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div id="modal-filtro" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="modal-content p-8 rounded-xl relative shadow-2xl border-t-4 border-lime-400">
-            <button onclick="fecharModalFiltro()" class="absolute top-4 right-4 text-slate-500 hover:text-white">✕</button>
-            <h3 class="text-xl font-bold mb-1 uppercase italic">Filtrar Relatório</h3>
-            <div class="space-y-4 mt-6">
-                <input type="date" id="modal-ini" class="input-data">
-                <input type="date" id="modal-fim" class="input-data">
-            </div>
-            <div class="flex gap-4 mt-8">
-                <button onclick="fecharModalFiltro()" class="flex-1 bg-slate-800 py-3 rounded-lg font-bold">Voltar</button>
-                <button onclick="aplicarFiltroLocal()" class="btn-aplicar flex-1 uppercase">Filtrar Agora</button>
-            </div>
-        </div>
+  <!-- Header -->
+  <header class="flex justify-between items-center mb-8">
+    <h2 id="titulo-pagina" class="text-2xl font-black uppercase tracking-tight">Overview</h2>
+    <div class="relative">
+      <button onclick="toggleDropdown()" class="flex items-center gap-3 bg-transparent px-4 py-2 rounded-full border border-[#1a1e2e] hover:border-[#e53e3e] transition">
+        <span id="top-user-name" class="text-sm font-bold text-gray-300 uppercase italic">...</span>
+        <div id="avatar-inicial" class="h-9 w-9 bg-[#12161f] rounded-lg flex items-center justify-center text-sm font-black border border-[#e53e3e] text-white">?</div>
+      </button>
+      <div id="dropdown" class="hidden absolute right-0 mt-2 w-44 rounded-xl z-50 overflow-hidden shadow-2xl border">
+        <button onclick="mudarTab('perfil')" class="flex items-center w-full p-3 text-sm text-gray-300 hover:bg-[#12161f]">
+          <i data-lucide="user-circle" class="mr-3 w-4 h-4 text-lime-400"></i> Meu Perfil
+        </button>
+        <button onclick="logout()" class="flex items-center w-full p-3 text-sm text-red-400 hover:bg-[#12161f] border-t border-[#1a1e2e]">
+          <i data-lucide="log-out" class="mr-3 w-4 h-4"></i> Sair
+        </button>
+      </div>
     </div>
+  </header>
 
-    <div id="toast">Filtros aplicados com sucesso!</div>
+  <!-- Filtros topo -->
+  <div id="filtros-topo" class="mb-6 flex justify-between items-center">
+    <button onclick="abrirModalFiltro()" class="flex items-center gap-2 px-4 py-2 bg-transparent border border-[#1a1e2e] rounded-lg text-gray-400 hover:border-lime-400 transition text-xs font-semibold uppercase tracking-wide">
+      <i data-lucide="calendar" class="w-4 h-4 text-lime-400"></i>
+      <span id="periodo-exibicao">Período completo</span>
+    </button>
+    <button onclick="limparFiltro()" id="btn-limpar-filtro" class="hidden text-xs text-gray-500 hover:text-red-400 transition font-semibold uppercase tracking-wide">
+      × Limpar filtro
+    </button>
+  </div>
 
-    <script>
-    const firebaseConfig = { apiKey: "AIzaSyC-0AR8LPQJpdVcYp6QY8nUQJgBGr8oOy0", authDomain: "tufagency-6902e.firebaseapp.com", databaseURL: "https://tufagency-6902e-default-rtdb.firebaseio.com", projectId: "tufagency-6902e", storageBucket: "tufagency-6902e.firebasestorage.app", messagingSenderId: "34548749822", appId: "1:34548749822:web:74676530713d232a725caf" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+  <!-- OVERVIEW -->
+  <div id="secao-overview" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 fade-up">
+    <div class="card-stat">
+      <img src="icons/rgst.svg" class="h-11 flex-shrink-0">
+      <div><p class="text-label">Registro</p><h3 id="registros" class="text-value">0</h3></div>
+    </div>
+    <div class="card-stat">
+      <img src="icons/FTD-BkwOULkh.svg" class="h-11 flex-shrink-0">
+      <div><p class="text-label">FTD</p><h3 id="ftd" class="text-value">0</h3></div>
+    </div>
+    <div class="card-stat">
+      <img src="icons/FTD-BkwOULkh.svg" class="h-11 flex-shrink-0">
+      <div><p class="text-label">QFTD</p><h3 id="qftd" class="text-value">0</h3></div>
+    </div>
+    <div class="card-stat">
+      <img src="icons/deposito-BqL6OVL2.svg" class="h-11 flex-shrink-0">
+      <div><p class="text-label">Depósito</p><h3 id="depositos" class="text-value">R$ 0,00</h3></div>
+    </div>
+    <div class="card-stat">
+      <img src="icons/Rev-Cd_d35Vr.svg" class="h-11 flex-shrink-0">
+      <div><p class="text-label">REV</p><h3 id="rev" class="text-value">R$ 0,00</h3></div>
+    </div>
+    <div class="card-stat">
+      <img src="icons/cpa.svg" class="h-11 flex-shrink-0">
+      <div><p class="text-label">CPA</p><h3 id="cpa" class="text-value">R$ 0,00</h3></div>
+    </div>
+    <div class="card-stat card-total sm:col-span-2 lg:col-span-3">
+      <img src="icons/cprev.svg" class="h-11 flex-shrink-0">
+      <div><p class="text-label">Total (REV + CPA)</p><h3 id="total" class="text-value">R$ 0,00</h3></div>
+    </div>
+  </div>
 
-    // Pega o usuário e limpa possíveis caracteres que o Firebase não aceita
-    const user = localStorage.getItem('usuarioLogado');
-    if(!user) window.location.href = 'index.html';
+  <!-- PERFIL -->
+  <div id="secao-perfil" class="hidden max-w-2xl fade-up">
+    <div class="perfil-card">
+      <div class="flex flex-col items-center mb-8">
+        <div class="avatar-grande mb-4" id="avatar-perfil-grande">?</div>
+        <h2 class="text-2xl font-black italic uppercase tracking-tight" id="perfil-nome-grande">...</h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="card-stat" style="border-color:#1a1e2e">
+          <i data-lucide="user" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
+          <div><p class="text-label">Nome</p><p id="perfil-nome-info" class="font-bold text-white uppercase italic">---</p></div>
+        </div>
+        <div class="card-stat" style="border-color:#1a1e2e">
+          <i data-lucide="mail" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
+          <div><p class="text-label">E-mail</p><p id="perfil-email" class="font-bold text-gray-300 lowercase italic text-sm">---</p></div>
+        </div>
+        <div class="card-stat" style="border-color:#1a1e2e">
+          <i data-lucide="credit-card" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
+          <div><p class="text-label">Chave Pix</p><p id="perfil-pix" class="font-bold text-white uppercase italic">---</p></div>
+        </div>
+        <div class="card-stat" style="border-color:#1a1e2e">
+          <i data-lucide="calendar-check" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
+          <div><p class="text-label">Recorrência</p><p id="perfil-pag" class="font-bold text-white uppercase italic">---</p></div>
+        </div>
+        <div class="card-stat sm:col-span-2" style="border-color:#1a1e2e">
+          <i data-lucide="zap" class="w-5 h-5 text-lime-400 flex-shrink-0"></i>
+          <div><p class="text-label">Meu Acordo</p><p id="perfil-acordo" class="font-bold text-white italic">---</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // Referência direta ao nó do usuário
-    db.ref('usuarios/' + user).on('value', (s) => {
-        const d = s.val();
-        if(d) {
-            // Nome e Avatar
-            const nomeExibicao = d.nome || user.replace(/_/g, ' ');
-            const inicial = nomeExibicao.charAt(0).toUpperCase();
-            
-            document.getElementById('avatar-inicial').innerText = inicial;
-            document.getElementById('avatar-perfil-grande').innerText = inicial;
-            document.getElementById('top-user-name').innerText = nomeExibicao;
-            document.getElementById('perfil-nome-grande').innerText = nomeExibicao;
-            
-            // Dados de Perfil (Tratando caso sejam vazios)
-            document.getElementById('perfil-nome-info').innerText = d.nome || 'NÃO INFORMADO';
-            document.getElementById('perfil-pix').innerText = d.pix || 'NÃO CADASTRADO';
-            document.getElementById('perfil-pag').innerText = d.pagamento || 'A DEFINIR';
-            document.getElementById('perfil-email').innerText = d.email || user.replace(/_/g, '.');
-            
-            // Ajuste do Acordo (CPA e Base)
-            const cpaAcordo = d.acordoCPA || d.cpa || '0';
-            const baseAcordo = d.base || '0';
-            document.getElementById('perfil-acordo').innerText = `BASE R$ ${baseAcordo} / CPA R$ ${cpaAcordo}`;
+</main>
 
-            // Contagem dos dados
-            let reg=0, qftd=0, ftd=0, dep_total=0, rev_v=0, cpa_v=0;
-            
-            if(d.historico) {
-                Object.values(d.historico).forEach(h => {
-                    reg += parseInt(h.registros || 0);
-                    qftd += parseInt(h.qftd || 0);
-                    ftd += parseInt(h.ftd || 0);
-                    dep_total += (parseFloat(h.depositos_qftd || 0) + parseFloat(h.depositos_brutos || 0) + parseFloat(h.depositos || 0));
-                    rev_v += parseFloat(h.rev || 0);
-                    cpa_v += parseFloat(h.cpa || 0);
-                });
-            }
+<!-- MODAL FILTRO -->
+<div id="modal-filtro" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="modal-content relative shadow-2xl">
+    <button onclick="fecharModalFiltro()" class="absolute top-4 right-4 text-gray-500 hover:text-white text-lg">✕</button>
+    <h3 class="text-lg font-bold mb-1 uppercase italic tracking-tight">Filtrar Período</h3>
+    <p class="text-gray-500 text-xs mb-6">Selecione o intervalo de datas para o relatório</p>
+    <div class="space-y-3">
+      <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Data Início</label>
+        <input type="date" id="modal-ini" class="input-data mt-1"></div>
+      <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Data Fim</label>
+        <input type="date" id="modal-fim" class="input-data mt-1"></div>
+    </div>
+    <div class="flex gap-3 mt-6">
+      <button onclick="fecharModalFiltro()" class="btn-ghost flex-1">Voltar</button>
+      <button onclick="aplicarFiltroLocal()" class="btn-filtrar flex-1">Filtrar Agora</button>
+    </div>
+  </div>
+</div>
 
-            // Exibição nos Cards
-            document.getElementById('registros').innerText = reg;
-            document.getElementById('qftd').innerText = qftd;
-            document.getElementById('ftd').innerText = ftd;
-            document.getElementById('depositos').innerText = "R$ " + dep_total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-            document.getElementById('rev').innerText = "R$ " + rev_v.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-            document.getElementById('cpa').innerText = "R$ " + cpa_v.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-            document.getElementById('total').innerText = "R$ " + (rev_v + cpa_v).toLocaleString('pt-BR', {minimumFractionDigits: 2});
-            
-            // Datas
-            document.getElementById('periodo-exibicao').innerText = (d.dataInicio || "Início") + " - " + (d.dataFim || "Hoje");
-        } else {
-            console.log("Usuário não encontrado no banco de dados.");
-        }
+<div id="toast">✓ Filtros aplicados!</div>
+
+<script>
+// ==================== FIREBASE (UNIFICADO) ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyDcwuASd8wGkR9is1uFQwRjJKbatYE_wD0",
+  authDomain: "tuf-v4.firebaseapp.com",
+  databaseURL: "https://tuf-v4-default-rtdb.firebaseio.com",
+  projectId: "tuf-v4",
+  storageBucket: "tuf-v4.firebasestorage.app",
+  messagingSenderId: "108777866240",
+  appId: "1:108777866240:web:803141d1a15373223b44e5"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ==================== SESSION ====================
+const user = localStorage.getItem('usuarioLogado');
+if (!user) window.location.href = 'index.html';
+
+// ==================== ESTADO ====================
+let dadosUsuario = null;
+let filtroIni = null;
+let filtroFim = null;
+
+// ==================== CARREGA DADOS ====================
+db.ref('usuarios/' + user).on('value', s => {
+  const d = s.val();
+  if (!d) { console.error('Usuário não encontrado:', user); return; }
+
+  dadosUsuario = d;
+
+  // Nome e avatar
+  const nome = d.nome || user.replace(/_/g, ' ');
+  const inicial = nome.charAt(0).toUpperCase();
+  document.getElementById('avatar-inicial').textContent = inicial;
+  document.getElementById('avatar-perfil-grande').textContent = inicial;
+  document.getElementById('top-user-name').textContent = nome;
+  document.getElementById('perfil-nome-grande').textContent = nome;
+
+  // Dados de perfil
+  document.getElementById('perfil-nome-info').textContent = d.nome || 'NÃO INFORMADO';
+  document.getElementById('perfil-pix').textContent = d.pix || 'NÃO CADASTRADO';
+  document.getElementById('perfil-pag').textContent = d.pagamento || 'A DEFINIR';
+  document.getElementById('perfil-email').textContent = d.email || d.loginExibicao || user.replace(/_at_/g, '@').replace(/_/g, '.');
+  document.getElementById('perfil-acordo').textContent = `Base R$ ${d.base || 0} / CPA R$ ${d.acordoCPA || 0} por QFTD`;
+
+  // Calcula cards com filtro atual
+  calcularCards();
+});
+
+// ==================== CÁLCULO COM FILTRO ====================
+function calcularCards() {
+  if (!dadosUsuario) return;
+
+  let reg = 0, qftd = 0, ftd = 0, dep = 0, rev = 0, cpa = 0;
+
+  if (dadosUsuario.historico) {
+    Object.entries(dadosUsuario.historico).forEach(([data, h]) => {
+      // Aplica filtro de data se definido
+      if (filtroIni && data < filtroIni) return;
+      if (filtroFim && data > filtroFim) return;
+
+      reg  += parseInt(h.registros || 0);
+      qftd += parseInt(h.qftd || 0);
+      ftd  += parseInt(h.ftd || 0);
+      dep  += parseFloat(h.depositos_brutos || 0) + parseFloat(h.depositos_qftd || 0) + parseFloat(h.depositos || 0);
+      rev  += parseFloat(h.rev || 0);
+      cpa  += parseFloat(h.cpa || 0);
     });
+  }
 
-    // Funções de interface (mudarTab, logout, etc) permanecem iguais...
-    function logout() { localStorage.clear(); window.location.href = 'index.html'; }
-    function toggleDropdown() { document.getElementById('dropdown').classList.toggle('hidden'); }
-    function mudarTab(tab) {
-        document.getElementById('secao-overview').classList.toggle('hidden', tab !== 'overview');
-        document.getElementById('secao-perfil').classList.toggle('hidden', tab !== 'perfil');
-        document.getElementById('filtros-topo').classList.toggle('hidden', tab !== 'overview');
-        document.getElementById('titulo-pagina').innerText = tab === 'overview' ? 'Overview' : 'Meu Perfil';
-    }
-            
-            // Estilo botões sidebar
-            document.getElementById('btn-overview').className = tab === 'overview' ? 
-                'flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold' : 
-                'flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition';
-            
-            document.getElementById('btn-perfil').className = tab === 'perfil' ? 
-                'flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold' : 
-                'flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition';
-        }
-        lucide.createIcons();
-    </script>
+  const fmt = v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+
+  document.getElementById('registros').textContent = reg;
+  document.getElementById('qftd').textContent = qftd;
+  document.getElementById('ftd').textContent = ftd;
+  document.getElementById('depositos').textContent = fmt(dep);
+  document.getElementById('rev').textContent = fmt(rev);
+  document.getElementById('cpa').textContent = fmt(cpa);
+  document.getElementById('total').textContent = fmt(rev + cpa);
+
+  // Atualiza label do período
+  if (filtroIni || filtroFim) {
+    const ini = filtroIni ? filtroIni.split('-').reverse().join('/') : 'Início';
+    const fim = filtroFim ? filtroFim.split('-').reverse().join('/') : 'Hoje';
+    document.getElementById('periodo-exibicao').textContent = `${ini} — ${fim}`;
+    document.getElementById('btn-limpar-filtro').classList.remove('hidden');
+  } else {
+    document.getElementById('periodo-exibicao').textContent = 'Período completo';
+    document.getElementById('btn-limpar-filtro').classList.add('hidden');
+  }
+}
+
+// ==================== FILTRO ====================
+function abrirModalFiltro() {
+  document.getElementById('modal-filtro').classList.remove('hidden');
+  if (filtroIni) document.getElementById('modal-ini').value = filtroIni;
+  if (filtroFim) document.getElementById('modal-fim').value = filtroFim;
+}
+
+function fecharModalFiltro() {
+  document.getElementById('modal-filtro').classList.add('hidden');
+}
+
+function aplicarFiltroLocal() {
+  filtroIni = document.getElementById('modal-ini').value || null;
+  filtroFim = document.getElementById('modal-fim').value || null;
+  fecharModalFiltro();
+  calcularCards();
+  showToast('Filtros aplicados!');
+}
+
+function limparFiltro() {
+  filtroIni = null;
+  filtroFim = null;
+  document.getElementById('modal-ini').value = '';
+  document.getElementById('modal-fim').value = '';
+  calcularCards();
+}
+
+// ==================== UI ====================
+function mudarTab(tab) {
+  const isOverview = tab === 'overview';
+
+  document.getElementById('secao-overview').classList.toggle('hidden', !isOverview);
+  document.getElementById('secao-perfil').classList.toggle('hidden', isOverview);
+  document.getElementById('filtros-topo').classList.toggle('hidden', !isOverview);
+  document.getElementById('titulo-pagina').textContent = isOverview ? 'Overview' : 'Meu Perfil';
+
+  document.getElementById('btn-overview').className = 'nav-btn' + (isOverview ? ' active' : '');
+  document.getElementById('btn-perfil').className = 'nav-btn' + (!isOverview ? ' active' : '');
+
+  document.getElementById('dropdown').classList.add('hidden');
+  lucide.createIcons();
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'index.html';
+}
+
+function toggleDropdown() {
+  document.getElementById('dropdown').classList.toggle('hidden');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = '✓ ' + msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+lucide.createIcons();
+</script>
 </body>
 </html>
