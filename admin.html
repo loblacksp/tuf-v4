@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUF AGENCY - ADMIN PANEL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body class="bg-zinc-950 text-white font-sans min-h-screen">
+
+    <div id="admin-lock" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center p-6">
+        <h1 class="text-6xl font-black text-red-600 italic mb-4 tracking-tighter">ADMIN</h1>
+        <p class="text-zinc-500 mb-8 font-bold uppercase tracking-widest text-xs">TUF Agency v4.0 Access</p>
+        <input type="password" id="master-pass" placeholder="SENHA MESTRA" class="w-full max-w-xs p-4 bg-zinc-900 border-2 border-red-600 rounded-2xl text-center font-black text-xl mb-4 outline-none">
+        <button onclick="unlockAdmin()" class="bg-red-600 hover:bg-white hover:text-red-600 px-12 py-4 rounded-2xl font-black transition-all duration-300 italic uppercase">Entrar</button>
+    </div>
+
+    <div id="main-admin" class="hidden max-w-6xl mx-auto p-6">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 border-b border-zinc-800 pb-8 gap-4">
+            <div>
+                <h1 class="text-4xl font-black italic text-red-600">TUF <span class="text-white not-italic text-2xl uppercase ml-2">Agency</span></h1>
+                <p class="text-zinc-500 text-xs font-bold tracking-widest uppercase">Gestão de Influenciadores & CPAs</p>
+            </div>
+            <button onclick="location.reload()" class="bg-zinc-900 border border-zinc-700 px-6 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition uppercase italic">Deslogar</button>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <section class="bg-zinc-900 p-8 rounded-3xl border-b-4 border-red-600 shadow-xl">
+                <h2 class="text-xl font-black mb-6 uppercase italic flex items-center gap-2">
+                    <span class="w-2 h-6 bg-red-600 block"></span> Cadastrar Influenciador
+                </h2>
+                <div class="space-y-4">
+                    <input type="text" id="new-name" placeholder="NOME DO INFLUENCER" class="w-full p-4 bg-black border border-zinc-800 rounded-xl focus:border-red-600 outline-none font-bold uppercase">
+                    <input type="text" id="new-email" placeholder="E-MAIL (LOGIN ORIGINAL)" class="w-full p-4 bg-black border border-zinc-800 rounded-xl focus:border-red-600 outline-none font-bold">
+                    <input type="text" id="new-pass" placeholder="SENHA DE ACESSO" class="w-full p-4 bg-black border border-zinc-800 rounded-xl focus:border-red-600 outline-none font-mono">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-zinc-500 font-bold ml-2">ACORDO BASE (R$)</label>
+                            <input type="number" id="new-base" placeholder="50.00" class="w-full p-4 bg-black border border-zinc-800 rounded-xl focus:border-red-600 outline-none font-bold">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-zinc-500 font-bold ml-2">ACORDO CPA (R$)</label>
+                            <input type="number" id="new-cpa" placeholder="100.00" class="w-full p-4 bg-black border border-zinc-800 rounded-xl focus:border-red-600 outline-none font-bold">
+                        </div>
+                    </div>
+                    <button onclick="salvarInflu()" class="w-full bg-red-600 py-5 rounded-2xl font-black hover:bg-white hover:text-black transition-all duration-300 uppercase italic text-lg shadow-lg shadow-red-900/20">Criar Acesso</button>
+                </div>
+            </section>
+
+            <section class="bg-white p-8 rounded-3xl border-b-4 border-black shadow-xl text-black">
+                <h2 class="text-xl font-black mb-6 uppercase italic flex items-center gap-2">
+                    <span class="w-2 h-6 bg-black block"></span> Lançar Números Diários
+                </h2>
+                <div class="space-y-4">
+                    <select id="select-user" class="w-full p-4 bg-zinc-100 border-2 border-zinc-200 rounded-xl font-black uppercase outline-none focus:border-black">
+                        <option value="">Carregando influencers...</option>
+                    </select>
+                    <input type="date" id="lanc-data" class="w-full p-4 bg-zinc-100 border-2 border-zinc-200 rounded-xl font-black outline-none focus:border-black">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" id="lanc-reg" placeholder="REGISTROS" class="w-full p-4 bg-zinc-100 border-2 border-zinc-200 rounded-xl font-black outline-none focus:border-black">
+                        <input type="number" id="lanc-qftd" placeholder="QFTD" class="w-full p-4 bg-zinc-100 border-2 border-zinc-200 rounded-xl font-black outline-none focus:border-black">
+                    </div>
+                    <button onclick="lancarDados()" class="w-full bg-black text-white py-5 rounded-2xl font-black hover:bg-red-600 transition-all duration-300 uppercase italic text-lg">Salvar No Histórico</button>
+                </div>
+            </section>
+        </div>
+
+        <div class="mt-12 bg-white text-black p-8 rounded-3xl shadow-2xl">
+            <h2 class="text-2xl font-black mb-6 italic uppercase tracking-tighter">Influenciadores Ativos</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b-4 border-black font-black uppercase text-[10px] text-zinc-400">
+                            <th class="p-4 text-black text-xs">Influencer</th>
+                            <th class="p-4 text-black text-xs">Login Exibição</th>
+                            <th class="p-4 text-black text-xs">Senha</th>
+                            <th class="p-4 text-black text-xs">Acordo (Base/CPA)</th>
+                            <th class="p-4 text-black text-xs text-right">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpo-tabela" class="font-bold uppercase text-xs"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO DO SEU FIREBASE NOVO (Mesmas chaves que você enviou)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcwuASd8wGkR9is1uFQwRjJKbatYE_wD0",
+            authDomain: "tuf-v4.firebaseapp.com",
+            databaseURL: "https://tuf-v4-default-rtdb.firebaseio.com",
+            projectId: "tuf-v4",
+            storageBucket: "tuf-v4.firebasestorage.app",
+            messagingSenderId: "108777866240",
+            appId: "1:108777866240:web:803141d1a15373223b44e5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function unlockAdmin() {
+            const pass = document.getElementById('master-pass').value;
+            if(pass === "tuf2026") { // A mesma senha que definimos no index
+                document.getElementById('admin-lock').classList.add('hidden');
+                document.getElementById('main-admin').classList.remove('hidden');
+                carregarInfluencers();
+            } else { alert("Acesso negado: Senha mestra inválida."); }
+        }
+
+        function salvarInflu() {
+            const rawEmail = document.getElementById('new-email').value.trim().toLowerCase();
+            const key = rawEmail.replace(/\./g, '_').replace(/@/g, '_at_');
+            
+            const data = {
+                nome: document.getElementById('new-name').value.trim(),
+                loginExibicao: rawEmail,
+                senha: document.getElementById('new-pass').value.trim() || "123",
+                base: parseFloat(document.getElementById('new-base').value) || 0,
+                acordoCPA: parseFloat(document.getElementById('new-cpa').value) || 0
+            };
+
+            if(!rawEmail) return alert("E-mail é obrigatório para o login!");
+
+            db.ref('usuarios/' + key).set(data).then(() => {
+                alert("INFLUENCER CADASTRADO!");
+                location.reload();
+            });
+        }
+
+        function lancarDados() {
+            const userKey = document.getElementById('select-user').value;
+            const dataLanc = document.getElementById('lanc-data').value;
+            const qftd = parseFloat(document.getElementById('lanc-qftd').value) || 0;
+            const reg = parseFloat(document.getElementById('lanc-reg').value) || 0;
+
+            if(!userKey || !dataLanc) return alert("Selecione o Influencer e a Data!");
+
+            db.ref('usuarios/' + userKey).once('value', s => {
+                const u = s.val();
+                const totalBase = qftd * u.base;
+                const totalCPA = qftd * u.acordoCPA;
+
+                const payload = {
+                    registros: reg,
+                    qftd: qftd,
+                    depositos_qftd: totalBase,
+                    cpa: totalCPA,
+                    ftd: qftd // Simplificando FTD como QFTD para o gráfico
+                };
+
+                db.ref('usuarios/' + userKey + '/historico/' + dataLanc).set(payload).then(() => {
+                    alert("DADOS SALVOS COM SUCESSO!");
+                });
+            });
+        }
+
+        function carregarInfluencers() {
+            db.ref('usuarios').on('value', s => {
+                const corpo = document.getElementById('corpo-tabela');
+                const select = document.getElementById('select-user');
+                corpo.innerHTML = '';
+                select.innerHTML = '<option value="">-- SELECIONE --</option>';
+
+                s.forEach(child => {
+                    const d = child.val();
+                    const key = child.key;
+
+                    corpo.innerHTML += `
+                        <tr class="border-b border-zinc-100">
+                            <td class="p-4 text-red-600">${d.nome}</td>
+                            <td class="p-4 text-zinc-400 italic">${d.loginExibicao || key}</td>
+                            <td class="p-4 font-mono text-black">${d.senha}</td>
+                            <td class="p-4">R$ ${d.base} / R$ ${d.acordoCPA}</td>
+                            <td class="p-4 text-right">
+                                <button onclick="deletar('${key}')" class="text-zinc-300 hover:text-red-600 transition">EXCLUIR</button>
+                            </td>
+                        </tr>
+                    `;
+                    select.innerHTML += `<option value="${key}">${d.nome.toUpperCase()}</option>`;
+                });
+            });
+        }
+
+        function deletar(key) {
+            if(confirm("TEM CERTEZA? ISSO APAGARÁ TODO O HISTÓRICO DESTE USUÁRIO.")) {
+                db.ref('usuarios/' + key).remove();
+            }
+        }
+    </script>
+</body>
+</html>
