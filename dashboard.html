@@ -14,38 +14,41 @@
         .sidebar { background-color: #1a2235; border-right: 1px solid #2d3748; height: 100vh; position: sticky; top: 0; }
         .card-stat { background-color: transparent; border: 1px solid #334155; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; transition: 0.3s; }
         .card-stat:hover { background-color: #1e293b; border-color: #4a5568; }
-        .text-label { color: #94a3b8; font-size: 13px; font-weight: 600; }
-        .text-value { font-size: 26px; font-weight: 800; color: #ffffff; }
-        .highlight-blue { border: 1px solid #3b82f6 !important; }
-        #modal-filtro { background-color: rgba(15, 23, 42, 0.9); }
+        .text-label { color: #94a3b8; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; }
+        .text-value { font-size: 24px; font-weight: 800; color: #ffffff; }
+        .highlight-blue { border: 1px solid #3b82f6 !important; background: rgba(59, 130, 246, 0.05); }
+        #modal-filtro { background-color: rgba(15, 23, 42, 0.95); backdrop-blur: 4px; }
         .modal-content { background-color: #1a2235; border: 1px solid #334155; width: 450px; }
         .input-data { background-color: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 8px; width: 100%; color: white; outline: none; }
         .input-data:focus { border-color: #a3e635; }
         .btn-aplicar { background-color: #a3e635; color: #0f172a; font-weight: 700; padding: 12px; border-radius: 8px; transition: 0.3s; }
         .btn-aplicar:hover { background-color: #bef264; }
-        #toast { visibility: hidden; min-width: 280px; background-color: #a3e635; color: #0f172a; text-align: center; border-radius: 8px; padding: 166px; position: fixed; z-index: 200; bottom: 30px; left: 50%; transform: translateX(-50%); font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        #toast { visibility: hidden; min-width: 280px; background-color: #a3e635; color: #0f172a; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 200; bottom: 30px; left: 50%; transform: translateX(-50%); font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
         .footer-text { color: #475569; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; }
     </style>
 </head>
-<body class="flex flex-col md:flex-row">
+<body class="flex flex-col md:flex-row min-h-screen">
 
     <aside class="w-64 sidebar hidden md:flex flex-col p-6">
-        <a href="dashboard.html" class="mb-10 block hover:opacity-80 transition">
-            <img src="icones/tuf.png" class="h-12 w-fit">
-        </a>
+        <div class="mb-10 block">
+            <img src="icons/tuf.png" class="h-12 w-fit">
+        </div>
         
         <nav class="space-y-4 flex-1">
             <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-2">Menu Principal</p>
             <button onclick="mudarTab('overview')" id="btn-overview" class="flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold">
                 <i data-lucide="layout-dashboard" class="mr-3 w-5 h-5"></i> Overview
             </button>
+            <button onclick="mudarTab('perfil')" id="btn-perfil" class="flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition">
+                <i data-lucide="user" class="mr-3 w-5 h-5"></i> Meu Perfil
+            </button>
         </nav>
         
         <div class="mt-auto pt-6 border-t border-slate-700">
-            <p class="footer-text mb-4 text-center italic">© TUF Agency - Marketing SPRBT desde 2023</p>
+            <p class="footer-text mb-4 text-center italic">© TUF Agency - Uma marca MODULAR desde 2019</p>
             <button onclick="logout()" class="flex items-center text-slate-500 hover:text-red-400 p-3 transition w-full">
                 <i data-lucide="log-out" class="mr-3 w-5 h-5"></i> Sair
             </button>
@@ -54,12 +57,12 @@
 
     <main class="flex-1 p-8">
         <header class="flex justify-between items-center mb-10">
-            <h2 id="titulo-pagina" class="text-3xl font-black italic uppercase tracking-tighter">Overview</h2>
+            <h2 id="titulo-pagina" class="text-3xl font-black italic uppercase tracking-tighter text-white">Overview</h2>
             
             <div class="relative">
                 <button onclick="toggleDropdown()" class="flex items-center gap-3 bg-transparent p-1 px-4 rounded-full border border-slate-700 hover:border-blue-500 transition">
                     <span id="top-user-name" class="text-sm font-bold text-slate-300 uppercase italic">...</span>
-                    <div id="avatar-inicial" class="h-10 w-10 bg-slate-600 rounded-lg flex items-center justify-center text-sm font-black border border-blue-500 text-white uppercase italic">?</div>
+                    <div id="avatar-inicial" class="h-10 w-10 bg-slate-800 rounded-lg flex items-center justify-center text-sm font-black border border-blue-500 text-white uppercase italic">?</div>
                 </button>
                 <div id="dropdown" class="hidden absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl z-50 overflow-hidden shadow-2xl">
                     <button onclick="mudarTab('perfil')" class="flex items-center w-full p-4 text-sm text-slate-300 hover:bg-slate-700">
@@ -78,7 +81,7 @@
                 <span id="periodo-exibicao" class="text-xs font-medium uppercase tracking-tighter">Carregando...</span>
             </button>
             <div class="bg-slate-800/50 px-3 py-1 rounded border border-slate-700 text-[10px] font-bold text-slate-500 uppercase italic">
-                Um oferecimento SPRBT
+                Um oferecimento MODULAR
             </div>
         </div>
 
@@ -95,9 +98,8 @@
         <div id="secao-perfil" class="hidden max-w-4xl mx-auto">
             <div class="bg-[#1a2235] border border-slate-700 p-8 rounded-2xl shadow-2xl">
                 <div class="flex flex-col items-center mb-10">
-                    <div id="avatar-perfil-grande" class="h-32 w-32 bg-slate-700 rounded-full flex items-center justify-center text-4xl font-bold border-4 border-slate-600 relative uppercase italic mb-4">?</div>
+                    <div id="avatar-perfil-grande" class="h-32 w-32 bg-slate-800 rounded-full flex items-center justify-center text-4xl font-bold border-4 border-blue-500 text-white uppercase italic mb-4">?</div>
                     <h2 class="text-3xl font-black italic uppercase tracking-tighter text-center" id="perfil-nome-grande">...</h2>
-                    <span class="bg-blue-500/10 text-blue-400 text-[10px] font-black px-3 py-1 rounded-full border border-blue-500/20 mt-2 uppercase">Afiliado Verificado</span>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -108,7 +110,6 @@
                     <div class="card-stat border-slate-800 md:col-span-2"><i data-lucide="zap" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">MEU ACORDO</p><p id="perfil-acordo" class="font-bold text-white italic">---</p></div></div>
                 </div>
             </div>
-            <p class="mt-8 footer-text text-center italic">Gerenciamento oficial TUF Agency Marketing SPRBT.</p>
         </div>
     </main>
 
@@ -116,8 +117,7 @@
         <div class="modal-content p-8 rounded-xl relative shadow-2xl border-t-4 border-lime-400">
             <button onclick="fecharModalFiltro()" class="absolute top-4 right-4 text-slate-500 hover:text-white">✕</button>
             <h3 class="text-xl font-bold mb-1 uppercase italic">Filtrar Relatório</h3>
-            <p class="text-slate-400 text-sm mb-8 italic">Selecione o período para recalcular os ganhos.</p>
-            <div class="space-y-4">
+            <div class="space-y-4 mt-6">
                 <input type="date" id="modal-ini" class="input-data">
                 <input type="date" id="modal-fim" class="input-data">
             </div>
@@ -147,31 +147,30 @@
                 document.getElementById('top-user-name').innerText = d.nome || user;
                 document.getElementById('perfil-nome-grande').innerText = d.nome || user;
                 
-                // Info do Perfil
                 document.getElementById('perfil-nome-info').innerText = d.nome || '---';
                 document.getElementById('perfil-pix').innerText = d.pix || 'NÃO CADASTRADO';
                 document.getElementById('perfil-pag').innerText = d.pagamento || 'NÃO DEFINIDO';
                 document.getElementById('perfil-acordo').innerText = `BASE R$ ${d.base || 0} / CPA R$ ${d.acordoCPA || 0}`;
                 document.getElementById('perfil-email').innerText = user.replace(/_/g, '.');
 
-                let reg=0, qftd=0, ftd=0, dep_total=0, rev=0, cpa=0;
+                let reg=0, qftd=0, ftd=0, dep_total=0, rev_v=0, cpa_v=0;
                 if(d.historico) {
                     Object.values(d.historico).forEach(h => {
                         reg += parseInt(h.registros || 0);
                         qftd += parseInt(h.qftd || 0);
                         ftd += parseInt(h.ftd || 0);
                         dep_total += (parseFloat(h.depositos_qftd || 0) + parseFloat(h.depositos_brutos || 0));
-                        rev += parseFloat(h.rev || 0);
-                        cpa += parseFloat(h.cpa || 0);
+                        rev_v += parseFloat(h.rev || 0);
+                        cpa_v += parseFloat(h.cpa || 0);
                     });
                 }
                 document.getElementById('registros').innerText = reg;
                 document.getElementById('qftd').innerText = qftd;
                 document.getElementById('ftd').innerText = ftd;
                 document.getElementById('depositos').innerText = "R$ " + dep_total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                document.getElementById('rev').innerText = "R$ " + rev.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                document.getElementById('cpa').innerText = "R$ " + cpa.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                document.getElementById('total').innerText = "R$ " + (rev + cpa).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                document.getElementById('rev').innerText = "R$ " + rev_v.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                document.getElementById('cpa').innerText = "R$ " + cpa_v.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                document.getElementById('total').innerText = "R$ " + (rev_v + cpa_v).toLocaleString('pt-BR', {minimumFractionDigits: 2});
                 
                 document.getElementById('periodo-exibicao').innerText = (d.dataInicio || "01/01/2026") + " - " + (d.dataFim || "31/01/2026");
                 document.getElementById('modal-ini').value = d.dataInicio ? d.dataInicio.split('/').reverse().join('-') : "2026-01-01";
@@ -193,12 +192,22 @@
         function fecharModalFiltro() { document.getElementById('modal-filtro').classList.add('hidden'); }
         function toggleDropdown() { document.getElementById('dropdown').classList.toggle('hidden'); }
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+        
         function mudarTab(tab) {
             document.getElementById('secao-overview').classList.toggle('hidden', tab !== 'overview');
             document.getElementById('secao-perfil').classList.toggle('hidden', tab !== 'perfil');
             document.getElementById('filtros-topo').classList.toggle('hidden', tab !== 'overview');
             document.getElementById('titulo-pagina').innerText = tab === 'overview' ? 'Overview' : 'Meu Perfil';
             document.getElementById('dropdown').classList.add('hidden');
+            
+            // Estilo botões sidebar
+            document.getElementById('btn-overview').className = tab === 'overview' ? 
+                'flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold' : 
+                'flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition';
+            
+            document.getElementById('btn-perfil').className = tab === 'perfil' ? 
+                'flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold' : 
+                'flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition';
         }
         lucide.createIcons();
     </script>
