@@ -3,67 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TUF AGENCY - DASHBOARD</title>
+    <title>TUF Agency - Painel do Afiliado</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: white; margin: 0; }
+        .sidebar { background-color: #1a2235; border-right: 1px solid #2d3748; height: 100vh; position: sticky; top: 0; }
+        .card-stat { background-color: transparent; border: 1px solid #334155; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; transition: 0.3s; }
+        .card-stat:hover { background-color: #1e293b; border-color: #4a5568; }
+        .text-label { color: #94a3b8; font-size: 13px; font-weight: 600; }
+        .text-value { font-size: 26px; font-weight: 800; color: #ffffff; }
+        .highlight-blue { border: 1px solid #3b82f6 !important; background: rgba(59, 130, 246, 0.05); }
+        .highlight-green { border: 1px solid #a3e635 !important; background: rgba(163, 230, 53, 0.05); }
+        #modal-filtro { background-color: rgba(15, 23, 42, 0.95); backdrop-blur: 8px; }
+        .modal-content { background-color: #1a2235; border: 1px solid #334155; width: 450px; }
+        .input-data { background-color: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 8px; width: 100%; color: white; outline: none; }
+        .input-data:focus { border-color: #a3e635; }
+        .btn-aplicar { background-color: #a3e635; color: #0f172a; font-weight: 700; padding: 12px; border-radius: 8px; transition: 0.3s; }
+        .btn-aplicar:hover { background-color: #bef264; }
+        #toast { visibility: hidden; min-width: 280px; background-color: #a3e635; color: #0f172a; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 200; bottom: 30px; left: 50%; transform: translateX(-50%); font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
 </head>
-<body class="bg-black text-white font-sans min-h-screen">
+<body class="flex flex-col md:flex-row min-h-screen">
 
-    <nav class="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 backdrop-blur-md sticky top-0 z-50">
-        <h1 class="text-2xl font-black italic text-red-600">TUF <span class="text-white not-italic">DASH</span></h1>
-        <div class="flex items-center gap-4">
-            <span id="user-display" class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Carregando...</span>
-            <button onclick="logout()" class="text-xs bg-red-600 px-4 py-2 rounded-full font-black uppercase italic">Sair</button>
+    <aside class="w-64 sidebar hidden md:flex flex-col p-6">
+        <div class="mb-10 block">
+            <img src="icons/tuf.png" class="h-12 w-fit">
         </div>
-    </nav>
-
-    <main class="max-w-6xl mx-auto p-6 space-y-8">
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-zinc-900 p-6 rounded-3xl border-b-4 border-red-600 shadow-xl">
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Saldo Total (CPA)</p>
-                <h2 id="card-saldo" class="text-4xl font-black mt-2 tracking-tighter text-white">R$ 0,00</h2>
+        <nav class="space-y-4 flex-1">
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-2">Navegação</p>
+            <button onclick="mudarTab('overview')" id="btn-overview" class="flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold">
+                <i data-lucide="layout-dashboard" class="mr-3 w-5 h-5"></i> Overview
+            </button>
+            <button onclick="mudarTab('perfil')" id="btn-perfil" class="flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition">
+                <i data-lucide="user" class="mr-3 w-5 h-5"></i> Perfil
+            </button>
+        </nav>
+        
+        <div class="mt-auto pt-6 border-t border-slate-700 text-center">
+            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-4">© TUF AGENCY v4</p>
+            <button onclick="logout()" class="flex items-center text-slate-500 hover:text-red-400 p-3 transition w-full">
+                <i data-lucide="log-out" class="mr-3 w-5 h-5"></i> Sair
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8">
+        <header class="flex justify-between items-center mb-10">
+            <h2 id="titulo-pagina" class="text-3xl font-black italic uppercase tracking-tighter">Overview</h2>
+            
+            <div class="flex items-center gap-4">
+                <span id="top-user-name" class="hidden md:block text-sm font-bold text-slate-300 uppercase italic">...</span>
+                <div id="avatar-inicial" class="h-10 w-10 bg-slate-800 rounded-lg flex items-center justify-center text-sm font-black border border-blue-500 text-white uppercase italic">?</div>
             </div>
-            <div class="bg-zinc-900 p-6 rounded-3xl border-b-4 border-white shadow-xl">
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest text-white/50">Total QFTD</p>
-                <h2 id="card-qftd" class="text-4xl font-black mt-2 tracking-tighter text-white">0</h2>
-            </div>
-            <div class="bg-zinc-900 p-6 rounded-3xl border-b-4 border-zinc-700 shadow-xl">
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest text-white/50">Total Registros</p>
-                <h2 id="card-reg" class="text-4xl font-black mt-2 tracking-tighter text-white font-mono">0</h2>
+        </header>
+
+        <div id="filtros-topo" class="mb-8 flex flex-wrap justify-between items-center gap-4">
+            <button onclick="abrirModalFiltro()" class="flex items-center gap-2 px-4 py-2 bg-transparent border border-slate-700 rounded-md text-slate-400 hover:border-lime-400 transition">
+                <i data-lucide="calendar" class="w-4 h-4 text-lime-400"></i>
+                <span id="periodo-exibicao" class="text-xs font-bold uppercase tracking-tighter">Carregando período...</span>
+            </button>
+            <div class="bg-blue-500/10 px-3 py-1 rounded border border-blue-500/20 text-[10px] font-bold text-blue-400 uppercase italic">
+                Status: Conta Ativa
             </div>
         </div>
 
-        <div class="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 shadow-2xl">
-            <h3 class="text-lg font-black italic uppercase mb-6 flex items-center gap-2">
-                <span class="w-1 h-5 bg-red-600 block"></span> Desempenho Diário (QFTDs)
-            </h3>
-            <div class="h-[300px]">
-                <canvas id="meuGrafico"></canvas>
-            </div>
+        <div id="secao-overview" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="card-stat"><i data-lucide="users" class="w-10 h-10 text-slate-500"></i><div><p class="text-label">Registros</p><h3 id="registros" class="text-value">0</h3></div></div>
+            <div class="card-stat"><i data-lucide="zap" class="w-10 h-10 text-blue-400"></i><div><p class="text-label">FTDs Brutos</p><h3 id="ftd" class="text-value">0</h3></div></div>
+            <div class="card-stat highlight-green"><i data-lucide="shield-check" class="w-10 h-10 text-lime-400"></i><div><p class="text-label text-lime-400">QFTD (Qualificados)</p><h3 id="qftd" class="text-value">0</h3></div></div>
+            
+            <div class="card-stat"><i data-lucide="trending-up" class="w-10 h-10 text-slate-500"></i><div><p class="text-label">Rec. Estimada</p><h3 id="depositos" class="text-value text-slate-300">R$ 0,00</h3></div></div>
+            <div class="card-stat highlight-blue"><i data-lucide="dollar-sign" class="w-10 h-10 text-blue-500"></i><div><p class="text-label text-blue-400">Comissão CPA</p><h3 id="cpa" class="text-value">R$ 0,00</h3></div></div>
+            <div class="card-stat bg-slate-800/20"><i data-lucide="wallet" class="w-10 h-10 text-slate-500"></i><div><p class="text-label">Total a Receber</p><h3 id="total" class="text-value text-slate-300">R$ 0,00</h3></div></div>
         </div>
 
-        <div class="bg-white text-black p-8 rounded-3xl shadow-2xl overflow-hidden">
-            <h3 class="text-xl font-black italic uppercase mb-6 tracking-tighter">Extrato Detalhado</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="border-b-4 border-black font-black uppercase text-[10px] text-zinc-400">
-                            <th class="p-4 text-black text-xs">Data</th>
-                            <th class="p-4 text-black text-xs">Registros</th>
-                            <th class="p-4 text-black text-xs">QFTDs</th>
-                            <th class="p-4 text-black text-xs">Receita Base</th>
-                            <th class="p-4 text-black text-xs text-right">CPA Gerado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-corpo" class="font-bold uppercase text-xs">
-                        </tbody>
-                </table>
+        <div id="secao-perfil" class="hidden max-w-4xl mx-auto">
+            <div class="bg-[#1a2235] border border-slate-700 p-10 rounded-2xl text-center shadow-2xl">
+                <div id="avatar-perfil-grande" class="h-32 w-32 bg-slate-800 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl font-bold border-4 border-blue-500 text-white uppercase italic">?</div>
+                <h2 id="perfil-nome-grande" class="text-3xl font-black italic mb-4 uppercase tracking-tighter">---</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mt-8">
+                    <div class="card-stat border-slate-800"><i data-lucide="hash" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">PIX cadastrado</p><p id="perfil-pix" class="font-bold text-white uppercase italic">---</p></div></div>
+                    <div class="card-stat border-slate-800"><i data-lucide="award" class="w-5 h-5 text-lime-400"></i><div><p class="text-label">Seu Acordo</p><p id="perfil-acordo" class="font-bold text-white italic">---</p></div></div>
+                </div>
             </div>
         </div>
     </main>
+
+    <div id="modal-filtro" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="modal-content p-8 rounded-xl relative shadow-2xl border-t-4 border-lime-400">
+            <button onclick="fecharModalFiltro()" class="absolute top-4 right-4 text-slate-500 hover:text-white">✕</button>
+            <h3 class="text-xl font-bold mb-1 uppercase italic">Filtrar Relatório</h3>
+            <p class="text-slate-400 text-sm mb-8 italic">Selecione as datas para atualizar os números.</p>
+            <div class="space-y-4">
+                <div><label class="text-[10px] font-black uppercase text-slate-500">De:</label><input type="date" id="modal-ini" class="input-data"></div>
+                <div><label class="text-[10px] font-black uppercase text-slate-500">Até:</label><input type="date" id="modal-fim" class="input-data"></div>
+            </div>
+            <div class="flex gap-4 mt-8">
+                <button onclick="fecharModalFiltro()" class="flex-1 bg-slate-800 py-3 rounded-lg font-bold">Voltar</button>
+                <button onclick="aplicarFiltroLocal()" class="btn-aplicar flex-1 uppercase">Atualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Relatório atualizado!</div>
 
     <script>
         const firebaseConfig = {
@@ -82,82 +133,77 @@
         if(!userKey) window.location.href = 'index.html';
 
         function carregarDash() {
-            db.ref('usuarios/' + userKey).on('value', s => {
-                const u = s.val();
-                if(!u) return;
+            db.ref('usuarios/' + userKey).on('value', (s) => {
+                const d = s.val();
+                if(!d) return;
 
-                document.getElementById('user-display').innerText = u.nome;
+                const inicial = d.nome ? d.nome.charAt(0).toUpperCase() : '?';
+                document.getElementById('avatar-inicial').innerText = inicial;
+                document.getElementById('avatar-perfil-grande').innerText = inicial;
+                document.getElementById('top-user-name').innerText = d.nome;
+                document.getElementById('perfil-nome-grande').innerText = d.nome;
+                document.getElementById('perfil-pix').innerText = d.pix || 'NÃO CADASTRADO';
+                document.getElementById('perfil-acordo').innerText = `CPA R$ ${d.acordoCPA || 0}`;
+
+                let reg=0, qftd=0, ftd=0, dep_total=0, cpa_total=0;
                 
-                const hist = u.historico || {};
-                const datas = Object.keys(hist).sort();
-                
-                let totalCPA = 0, totalQFTD = 0, totalReg = 0;
-                let graficoLabels = [], graficoDados = [];
-
-                const corpo = document.getElementById('tabela-corpo');
-                corpo.innerHTML = '';
-
-                datas.forEach(d => {
-                    const dia = hist[d];
-                    totalCPA += dia.cpa || 0;
-                    totalQFTD += dia.qftd || 0;
-                    totalReg += dia.registros || 0;
-
-                    graficoLabels.push(d.split('-').reverse().slice(0,2).join('/'));
-                    graficoDados.push(dia.qftd);
-
-                    corpo.innerHTML += `
-                        <tr class="border-b border-zinc-100">
-                            <td class="p-4 text-red-600">${d}</td>
-                            <td class="p-4 font-mono">${dia.registros}</td>
-                            <td class="p-4">${dia.qftd}</td>
-                            <td class="p-4">R$ ${dia.depositos_qftd.toFixed(2)}</td>
-                            <td class="p-4 text-right text-lg text-black">R$ ${dia.cpa.toFixed(2)}</td>
-                        </tr>
-                    `;
-                });
-
-                document.getElementById('card-saldo').innerText = `R$ ${totalCPA.toFixed(2)}`;
-                document.getElementById('card-qftd').innerText = totalQFTD;
-                document.getElementById('card-reg').innerText = totalReg;
-
-                renderizarGrafico(graficoLabels, graficoDados);
-            });
-        }
-
-        function renderizarGrafico(labels, dados) {
-            const ctx = document.getElementById('meuGrafico').getContext('2d');
-            if(window.chartObj) window.chartObj.destroy();
-            
-            window.chartObj = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'QFTDs',
-                        data: dados,
-                        backgroundColor: '#dc2626',
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#27272a' }, ticks: { color: '#71717a' } },
-                        x: { grid: { display: false }, ticks: { color: '#71717a' } }
-                    }
+                if(d.historico) {
+                    Object.values(d.historico).forEach(h => {
+                        reg += parseInt(h.registros || 0);
+                        qftd += parseInt(h.qftd || 0);
+                        ftd += parseInt(h.ftd || 0);
+                        dep_total += (parseFloat(h.depositos_qftd || 0));
+                        cpa_total += parseFloat(h.cpa || 0);
+                    });
                 }
+
+                document.getElementById('registros').innerText = reg;
+                document.getElementById('qftd').innerText = qftd;
+                document.getElementById('ftd').innerText = ftd;
+                document.getElementById('depositos').innerText = "R$ " + dep_total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                document.getElementById('cpa').innerText = "R$ " + cpa_total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                document.getElementById('total').innerText = "R$ " + cpa_total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                
+                const inicio = d.dataInicio || "Início";
+                const fim = d.dataFim || "Hoje";
+                document.getElementById('periodo-exibicao').innerText = `${inicio} - ${fim}`;
             });
         }
 
-        function logout() {
-            localStorage.removeItem('usuarioLogado');
-            window.location.href = 'index.html';
+        function aplicarFiltroLocal() {
+            const di = document.getElementById('modal-ini').value.split('-').reverse().join('/');
+            const df = document.getElementById('modal-fim').value.split('-').reverse().join('/');
+            
+            db.ref('usuarios/' + userKey).update({ dataInicio: di, dataFim: df }).then(() => {
+                fecharModalFiltro();
+                const t = document.getElementById("toast");
+                t.className = "show";
+                setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+            });
+        }
+
+        function abrirModalFiltro() { document.getElementById('modal-filtro').classList.remove('hidden'); }
+        function fecharModalFiltro() { document.getElementById('modal-filtro').classList.add('hidden'); }
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+        
+        function mudarTab(tab) {
+            document.getElementById('secao-overview').classList.toggle('hidden', tab !== 'overview');
+            document.getElementById('secao-perfil').classList.toggle('hidden', tab !== 'perfil');
+            document.getElementById('filtros-topo').classList.toggle('hidden', tab !== 'overview');
+            document.getElementById('titulo-pagina').innerText = tab === 'overview' ? 'Overview' : 'Meu Perfil';
+            
+            // Estilo dos botões
+            document.getElementById('btn-overview').className = tab === 'overview' ? 
+                'flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold' : 
+                'flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition';
+            
+            document.getElementById('btn-perfil').className = tab === 'perfil' ? 
+                'flex items-center w-full text-blue-400 bg-slate-800/20 p-3 rounded-lg border-l-4 border-blue-500 font-bold' : 
+                'flex items-center w-full text-slate-400 hover:text-white p-3 rounded-lg font-bold transition';
         }
 
         carregarDash();
+        lucide.createIcons();
     </script>
 </body>
 </html>
