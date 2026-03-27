@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUF AGENCY - LOGIN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body class="bg-black text-white flex items-center justify-center min-h-screen font-sans">
+
+    <div class="w-full max-w-sm p-8 text-center bg-zinc-900 rounded-3xl border-2 border-red-600 shadow-[0_0_50px_rgba(220,38,38,0.3)]">
+        <h1 class="text-5xl font-black italic text-red-600 mb-2">TUF</h1>
+        <p class="text-zinc-500 uppercase tracking-widest text-xs font-bold mb-10">Influencer Management</p>
+
+        <div class="space-y-4">
+            <input type="text" id="user" placeholder="E-MAIL OU USUÁRIO" 
+                class="w-full p-4 bg-black border-2 border-zinc-800 rounded-xl focus:border-red-600 outline-none transition font-bold uppercase placeholder:text-zinc-700">
+            
+            <input type="password" id="pass" placeholder="SENHA" 
+                class="w-full p-4 bg-black border-2 border-zinc-800 rounded-xl focus:border-red-600 outline-none transition font-bold uppercase placeholder:text-zinc-700">
+
+            <button onclick="realizarLogin()" 
+                class="w-full bg-red-600 hover:bg-white hover:text-red-600 text-white font-black py-4 rounded-xl transition-all duration-300 uppercase italic tracking-tighter text-lg">
+                Entrar no Painel
+            </button>
+        </div>
+        
+        <p class="mt-8 text-[10px] text-zinc-600 uppercase font-bold tracking-widest">Powered by TUF v4.0</p>
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO QUE VOCÊ MANDOU (Ajustada para V8)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcwuASd8wGkR9is1uFQwRjJKbatYE_wD0",
+            authDomain: "tuf-v4.firebaseapp.com",
+            databaseURL: "https://tuf-v4-default-rtdb.firebaseio.com",
+            projectId: "tuf-v4",
+            storageBucket: "tuf-v4.firebasestorage.app",
+            messagingSenderId: "108777866240",
+            appId: "1:108777866240:web:803141d1a15373223b44e5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function realizarLogin() {
+            const rawUser = document.getElementById('user').value.toLowerCase().trim();
+            const p = document.getElementById('pass').value;
+
+            if(!rawUser || !p) return alert("Preencha tudo!");
+
+            // Atalho de Admin (Mude a senha se quiser)
+            if(rawUser === "admin" && p === "tuf2026") {
+                sessionStorage.setItem('adminLogado', 'true');
+                window.location.href = 'admin.html';
+                return;
+            }
+
+            // LOGIN COM "TRADUÇÃO" DE PONTOS PARA O FIREBASE
+            const u = rawUser.replace(/\./g, '_').replace(/@/g, '_at_');
+
+            db.ref('usuarios/' + u).once('value', (s) => {
+                const d = s.val();
+                if(d && d.senha === p) {
+                    localStorage.setItem('usuarioLogado', u);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert("Acesso Negado!");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
