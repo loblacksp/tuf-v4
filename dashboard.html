@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUF AGENCY - DASHBOARD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body class="bg-black text-white font-sans min-h-screen">
+
+    <nav class="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 backdrop-blur-md sticky top-0 z-50">
+        <h1 class="text-2xl font-black italic text-red-600">TUF <span class="text-white not-italic">DASH</span></h1>
+        <div class="flex items-center gap-4">
+            <span id="user-display" class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Carregando...</span>
+            <button onclick="logout()" class="text-xs bg-red-600 px-4 py-2 rounded-full font-black uppercase italic">Sair</button>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-6 space-y-8">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-zinc-900 p-6 rounded-3xl border-b-4 border-red-600 shadow-xl">
+                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Saldo Total (CPA)</p>
+                <h2 id="card-saldo" class="text-4xl font-black mt-2 tracking-tighter text-white">R$ 0,00</h2>
+            </div>
+            <div class="bg-zinc-900 p-6 rounded-3xl border-b-4 border-white shadow-xl">
+                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest text-white/50">Total QFTD</p>
+                <h2 id="card-qftd" class="text-4xl font-black mt-2 tracking-tighter text-white">0</h2>
+            </div>
+            <div class="bg-zinc-900 p-6 rounded-3xl border-b-4 border-zinc-700 shadow-xl">
+                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest text-white/50">Total Registros</p>
+                <h2 id="card-reg" class="text-4xl font-black mt-2 tracking-tighter text-white font-mono">0</h2>
+            </div>
+        </div>
+
+        <div class="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 shadow-2xl">
+            <h3 class="text-lg font-black italic uppercase mb-6 flex items-center gap-2">
+                <span class="w-1 h-5 bg-red-600 block"></span> Desempenho Diário (QFTDs)
+            </h3>
+            <div class="h-[300px]">
+                <canvas id="meuGrafico"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white text-black p-8 rounded-3xl shadow-2xl overflow-hidden">
+            <h3 class="text-xl font-black italic uppercase mb-6 tracking-tighter">Extrato Detalhado</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b-4 border-black font-black uppercase text-[10px] text-zinc-400">
+                            <th class="p-4 text-black text-xs">Data</th>
+                            <th class="p-4 text-black text-xs">Registros</th>
+                            <th class="p-4 text-black text-xs">QFTDs</th>
+                            <th class="p-4 text-black text-xs">Receita Base</th>
+                            <th class="p-4 text-black text-xs text-right">CPA Gerado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-corpo" class="font-bold uppercase text-xs">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcwuASd8wGkR9is1uFQwRjJKbatYE_wD0",
+            authDomain: "tuf-v4.firebaseapp.com",
+            databaseURL: "https://tuf-v4-default-rtdb.firebaseio.com",
+            projectId: "tuf-v4",
+            storageBucket: "tuf-v4.firebasestorage.app",
+            messagingSenderId: "108777866240",
+            appId: "1:108777866240:web:803141d1a15373223b44e5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const userKey = localStorage.getItem('usuarioLogado');
+        if(!userKey) window.location.href = 'index.html';
+
+        function carregarDash() {
+            db.ref('usuarios/' + userKey).on('value', s => {
+                const u = s.val();
+                if(!u) return;
+
+                document.getElementById('user-display').innerText = u.nome;
+                
+                const hist = u.historico || {};
+                const datas = Object.keys(hist).sort();
+                
+                let totalCPA = 0, totalQFTD = 0, totalReg = 0;
+                let graficoLabels = [], graficoDados = [];
+
+                const corpo = document.getElementById('tabela-corpo');
+                corpo.innerHTML = '';
+
+                datas.forEach(d => {
+                    const dia = hist[d];
+                    totalCPA += dia.cpa || 0;
+                    totalQFTD += dia.qftd || 0;
+                    totalReg += dia.registros || 0;
+
+                    graficoLabels.push(d.split('-').reverse().slice(0,2).join('/'));
+                    graficoDados.push(dia.qftd);
+
+                    corpo.innerHTML += `
+                        <tr class="border-b border-zinc-100">
+                            <td class="p-4 text-red-600">${d}</td>
+                            <td class="p-4 font-mono">${dia.registros}</td>
+                            <td class="p-4">${dia.qftd}</td>
+                            <td class="p-4">R$ ${dia.depositos_qftd.toFixed(2)}</td>
+                            <td class="p-4 text-right text-lg text-black">R$ ${dia.cpa.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('card-saldo').innerText = `R$ ${totalCPA.toFixed(2)}`;
+                document.getElementById('card-qftd').innerText = totalQFTD;
+                document.getElementById('card-reg').innerText = totalReg;
+
+                renderizarGrafico(graficoLabels, graficoDados);
+            });
+        }
+
+        function renderizarGrafico(labels, dados) {
+            const ctx = document.getElementById('meuGrafico').getContext('2d');
+            if(window.chartObj) window.chartObj.destroy();
+            
+            window.chartObj = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'QFTDs',
+                        data: dados,
+                        backgroundColor: '#dc2626',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#27272a' }, ticks: { color: '#71717a' } },
+                        x: { grid: { display: false }, ticks: { color: '#71717a' } }
+                    }
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = 'index.html';
+        }
+
+        carregarDash();
+    </script>
+</body>
+</html>
